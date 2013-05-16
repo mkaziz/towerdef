@@ -14,6 +14,26 @@ goog.require('lime.animation.ScaleTo');
 goog.require('lime.animation.MoveTo');
 
 
+towerdef.start = function(){          
+    var director = new lime.Director(document.body,900,506);     
+    director.makeMobileWebAppCapable();     
+    director.setDisplayFPS(true);          
+    
+    var mapScene = new lime.Scene();              
+    director.replaceScene(mapScene); 
+    
+    var mapLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
+    var gameMap = new lime.Sprite().setSize(900,506).setFill("background.png").setPosition(0,0).setAnchorPoint(0,0);
+    
+    mapLayer.appendChild(gameMap);
+    mapScene.appendChild(mapLayer);
+    
+    var pikachu = new lime.Sprite().setSize(19,19).setFill("Pikachu_1.png").setPosition(0,0).setAnchorPoint(0,0);
+    
+    mapLayer.appendChild(pikachu);
+}
+
+/*
 // entrypoint
 towerdef.start = function(){
 
@@ -55,8 +75,7 @@ towerdef.start = function(){
         e.swallow(['mouseup','touchend'],function(){
             target.runAction(new lime.animation.Spawn(
                 new lime.animation.FadeTo(1),
-                new lime.animation.ScaleTo(1),
-                new lime.animation.MoveTo(512,384)
+                new lime.animation.ScaleTo(1)
             ));
 
             title.runAction(new lime.animation.FadeTo(0));
@@ -69,7 +88,7 @@ towerdef.start = function(){
 	director.replaceScene(scene);
 
 }
-
+*/
 
 //this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode
 goog.exportSymbol('towerdef.start', towerdef.start);
