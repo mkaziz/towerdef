@@ -31,6 +31,12 @@ towerdef.start = function(){
     var pikachu = new lime.Sprite().setSize(19,19).setFill("Pikachu_1.png").setPosition(0,0).setAnchorPoint(0,0);
     
     mapLayer.appendChild(pikachu);
+    
+    goog.events.listen(gameMap,['mousedown','touchstart'],function(e) {
+        var movement = new lime.animation.MoveTo(e.position.x,e.position.y).setDuration(1);
+        pikachu.runAction(movement);
+    });
+    
 }
 
 /*
