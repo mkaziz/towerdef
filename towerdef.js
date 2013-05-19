@@ -73,7 +73,7 @@ towerdef.addHoverListener = function() {
     
 
     
-towerdef.initializeMenuScene = function (director) {
+towerdef.menuScene = function (director) {
     var menuScene = new lime.Scene();
     director.replaceScene(menuScene);
     
@@ -90,7 +90,6 @@ towerdef.initializeMenuScene = function (director) {
     menuScene.appendChild(layer);
     
     menuScene.listenOverOut(start,function(e){
-
         //animate
         start.runAction(new lime.animation.ScaleTo(0.7).setDuration(.05));
         
@@ -98,8 +97,23 @@ towerdef.initializeMenuScene = function (director) {
     }, function() {
         console.log("hover out");
         start.runAction(new lime.animation.ScaleTo(0.6).setDuration(.05));
-        
     });
+    
+    goog.events.listen(start,['mousedown','touchstart'],function(e) {
+        towerdef.gameScene(director);
+    });
+    
+}
+
+towerdef.gameScene = function (director) {
+    var gameScene = new lime.Scene();
+    director.replaceScene(gameScene);
+    
+    var gameLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
+    var background = new lime.Sprite().setSize(900,506).setFill("background.png").setPosition(0,0).setAnchorPoint(0,0);
+     
+    gameLayer.appendChild(background);
+    gameScene.appendChild(gameLayer);
     
 }
 
@@ -109,7 +123,7 @@ towerdef.start = function(){
     director.setDisplayFPS(true);          
     
     towerdef.addHoverListener();
-    towerdef.initializeMenuScene(director);
+    towerdef.menuScene(director);
     
     /*
     var mapScene = new lime.Scene();              
