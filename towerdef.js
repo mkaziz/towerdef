@@ -3,6 +3,7 @@ goog.provide('towerdef');
 
 
 //get requirements
+goog.require('lime');
 goog.require('lime.Director');
 goog.require('lime.Scene');
 goog.require('lime.Layer');
@@ -12,6 +13,9 @@ goog.require('lime.animation.Spawn');
 goog.require('lime.animation.FadeTo');
 goog.require('lime.animation.ScaleTo');
 goog.require('lime.animation.MoveTo');
+goog.require('lime.CoverNode');
+goog.require('lime.animation.ColorTo');
+goog.require('lime.animation.Sequence');
 
 
 GameObjects = {
@@ -100,7 +104,28 @@ towerdef.initializeMenuScene = function (director) {
         start.runAction(new lime.animation.ScaleTo(0.6).setDuration(.05));
         
     });
-    
+	
+	goog.events.listen(start, ['mousedown','touchstart'], function(e){
+      towerdef.startGame(director);
+    });
+}
+
+towerdef.startGame = function (director) {
+	 //new scene setup
+	var gameScene = new lime.Scene();
+	director.replaceScene(gameScene);
+
+	var layer = new lime.Layer().setPosition(0.0).setAnchorPoint(0,0);
+	gameScene.appendChild(layer);
+	
+	//add background
+	var background = new lime.Sprite().setSize(900,506).setFill("background.png").setRenderer(lime.Renderer.CANVAS).setPosition(0,0).setAnchorPoint(0,0);
+	layer.appendChild(background);
+	
+	var posX = 750; 
+	var posY = 450; //Building spawn point
+	addBuildings(layer, posX, posY); //Add building functionality
+	
 }
 
 towerdef.start = function(){          
@@ -110,7 +135,8 @@ towerdef.start = function(){
     
     towerdef.addHoverListener();
     towerdef.initializeMenuScene(director);
-    
+	//towerdef.startGame(director);
+
     /*
     var mapScene = new lime.Scene();              
     director.replaceScene(mapScene); 
@@ -198,6 +224,101 @@ towerdef.start = function(){
 
 }
 */
+
+///Section: building functionality. Add "addBuildings" into main function.
+
+var drop_targets = [];
+
+function addBuildings(layer, posX, posY) 
+///Add all building drag-drop functionality to game
+/// pass in the layer to add the buildings to, the X and Y position of the building spawn point
+{
+	buildDropMap(layer);
+	
+	//var dragLocation = new lime.Sprite().setSize(20,20).setFill('#000').setPosition(posX,posY);
+	//layer.appendChild(dragLocation);
+	
+	var buildButton = addBuildingButton (layer, posX, posY);
+	
+
+}
+
+function addBuildingButton (layer, posX, posY) {
+	var buildButton = new lime.Label("Add Building").setPosition(posX + 70, posY);
+	buildButton.setFill('#f00');
+	buildButton.setPadding(10,10,10,10);
+	layer.appendChild(buildButton);
+	
+	goog.events.listen(buildButton, ['mouseup','touchend'], function(e) {
+		var drag = makeDraggable().setFill('#555').setPosition(posX, posY);
+		layer.appendChild(drag);
+	});
+	
+	return buildButton;
+}
+
+
+
+function buildDropMap(layer) {
+//set locations of each building foundation below:
+  var location = [
+	[600, 40],
+	[600, 220],
+	[600, 455]
+	];
+
+  // create foundations at each location
+  for (var i=0; i<location.length; i++) {
+	drop_targets.push(makeDroppable().setPosition(location[i][0], location[i][1]));
+  }
+  
+  //add each foundation to map
+  for (var i=0; i<drop_targets.length; i++) {
+	layer.appendChild(drop_targets[i]);
+  }
+}
+
+function makeDraggable() {
+  var sprite = new lime.Sprite().setSize(20,20).setFill('#000'); //TODO: add sprite here
+  goog.events.listen(sprite, 'mousedown', function(e){
+    var drag = e.startDrag(false, null, sprite); // snaptocenter, bounds, target
+    
+    // Add drop targets.
+	for (var i = 0;i<drop_targets.length;i++) {
+		drag.addDropTarget(drop_targets[i]);
+	}
+    
+    e.event.stopPropagation();  // Avoid dragging multiple items together
+    
+    // Drop into target and animate
+    goog.events.listen(drag, lime.events.Drag.Event.DROP, function(e){
+      console.log('item was dropped');
+      var dropTarget = e.activeDropTarget;
+    });
+    
+    // Move back if not dropped on target.
+    var lastPosition = sprite.getPosition();
+    goog.events.listen(drag, lime.events.Drag.Event.CANCEL, function(){
+      sprite.runAction(new lime.animation.MoveTo(lastPosition).setDuration(.5));
+    });
+    
+    
+  });
+  return sprite;
+}
+
+function makeDroppable() {
+  //var sprite = new lime.Label().setText('droppable').setSize(150, 150).setFill('#00f');
+  var sprite = new lime.Sprite().setSize(20,20).setFill('#c00');
+  sprite.showDropHighlight = function(){
+    this.runAction(new lime.animation.FadeTo(.6).setDuration(.3));
+  };
+  sprite.hideDropHighlight = function(){
+    this.runAction(new lime.animation.FadeTo(1).setDuration(.1));
+  };
+  
+  return sprite; 
+}
 
 
 //this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode
