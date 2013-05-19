@@ -262,8 +262,12 @@ function addBuildingButton (layer, posX, posY) {
 	layer.appendChild(buildButton);
 	
 	goog.events.listen(buildButton, ['mouseup','touchend'], function(e) {
-		var drag = makeDraggable().setFill('#555').setPosition(posX, posY);
-		layer.appendChild(drag);
+		var water = makeDraggable().setFill('water_building.png').setPosition(posX, posY);
+        var fire = makeDraggable().setFill('fire_building.png').setPosition(posX - 30, posY);
+        var grass = makeDraggable().setFill('grass_building.png').setPosition(posX - 60, posY);
+		layer.appendChild(water);
+        layer.appendChild(fire);
+        layer.appendChild(grass);
 	});
 	
 	return buildButton;
