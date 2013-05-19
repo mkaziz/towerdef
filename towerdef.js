@@ -115,6 +115,16 @@ towerdef.gameScene = function (director) {
     gameLayer.appendChild(background);
     gameScene.appendChild(gameLayer);
     
+    var starting = new lime.Sprite().setSize(540,160).setFill("starting.png").setPosition(450,150).setAnchorPoint(0.5,0.5).setScale(1.5,1.5);
+    
+    gameLayer.appendChild(starting);
+    
+    starting.runAction(new lime.animation.Spawn(
+                new lime.animation.FadeTo(0),
+                new lime.animation.ScaleTo(0.5)
+            ).setDuration(2));
+    
+    
 }
 
 towerdef.start = function(){          
