@@ -129,7 +129,11 @@ towerdef.gameScene = function (director) {
                 new lime.animation.ScaleTo(0.5)
             ).setDuration(2));
     
+    var lGym = new lime.Sprite().setSize(96,80).setFill("gym.png").setPosition(50,250).setAnchorPoint(0.5,0.5);
+    var rGym = new lime.Sprite().setSize(96,80).setFill("gym.png").setPosition(850,250).setAnchorPoint(0.5,0.5);
     
+    gameLayer.appendChild(rGym);
+    gameLayer.appendChild(lGym);
 	
 	var posX = 750; 
 	var posY = 450; //Building spawn point
