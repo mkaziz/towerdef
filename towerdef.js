@@ -77,7 +77,7 @@ towerdef.addHoverListener = function() {
     
 
     
-towerdef.initializeMenuScene = function (director) {
+towerdef.menuScene = function (director) {
     var menuScene = new lime.Scene();
     director.replaceScene(menuScene);
     
@@ -94,7 +94,6 @@ towerdef.initializeMenuScene = function (director) {
     menuScene.appendChild(layer);
     
     menuScene.listenOverOut(start,function(e){
-
         //animate
         start.runAction(new lime.animation.ScaleTo(0.7).setDuration(.05));
         
@@ -102,29 +101,28 @@ towerdef.initializeMenuScene = function (director) {
     }, function() {
         console.log("hover out");
         start.runAction(new lime.animation.ScaleTo(0.6).setDuration(.05));
-        
     });
 	
-	goog.events.listen(start, ['mousedown','touchstart'], function(e){
-      towerdef.startGame(director);
+	 goog.events.listen(start,['mousedown','touchstart'],function(e) {
+        towerdef.gameScene(director);
     });
+
 }
 
-towerdef.startGame = function (director) {
-	 //new scene setup
-	var gameScene = new lime.Scene();
-	director.replaceScene(gameScene);
 
-	var layer = new lime.Layer().setPosition(0.0).setAnchorPoint(0,0);
-	gameScene.appendChild(layer);
-	
-	//add background
-	var background = new lime.Sprite().setSize(900,506).setFill("background.png").setRenderer(lime.Renderer.CANVAS).setPosition(0,0).setAnchorPoint(0,0);
-	layer.appendChild(background);
+towerdef.gameScene = function (director) {
+    var gameScene = new lime.Scene();
+    director.replaceScene(gameScene);
+    
+    var gameLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
+    var background = new lime.Sprite().setSize(900,506).setFill("background.png").setPosition(0,0).setAnchorPoint(0,0);
+     
+    gameLayer.appendChild(background);
+    gameScene.appendChild(gameLayer);
 	
 	var posX = 750; 
 	var posY = 450; //Building spawn point
-	addBuildings(layer, posX, posY); //Add building functionality
+	addBuildings(gameLayer, posX, posY); //Add building functionality
 	
 }
 
@@ -134,8 +132,8 @@ towerdef.start = function(){
     director.setDisplayFPS(true);          
     
     towerdef.addHoverListener();
-    towerdef.initializeMenuScene(director);
-	//towerdef.startGame(director);
+    towerdef.menuScene(director);
+    
 
     /*
     var mapScene = new lime.Scene();              
@@ -309,7 +307,7 @@ function makeDraggable() {
 
 function makeDroppable() {
   //var sprite = new lime.Label().setText('droppable').setSize(150, 150).setFill('#00f');
-  var sprite = new lime.Sprite().setSize(20,20).setFill('#c00');
+  var sprite = new lime.Sprite().setSize(20,20).setFill('foundation.png');
   sprite.showDropHighlight = function(){
     this.runAction(new lime.animation.FadeTo(.6).setDuration(.3));
   };
