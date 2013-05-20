@@ -19,14 +19,25 @@ goog.require('lime.animation.ColorTo');
 goog.require('lime.animation.Sequence');
 
 
-GameObjects = {
+towerdef.player = function(gym) {
     
-        player : {
-            gymHealth : 100,
-            army : []
-        }
+    this.pokemon = [];
+    this.health = 100;
+    // left or right
+    this.gym = gym;
+        
+}
+
+towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
+    this.health = health;
+    this.attack = attack;
+    this.type = type;
+    this.player = player;
+    this.sprite = new lime.Sprite().setSize(19,19).setFill(spriteUrl).setPosition(player.gym.position_.x,player.gym.position_.y).setAnchorPoint(0.5,0.5);
+    this.route = Math.floor((Math.random()*100)+1);
     
-    }
+    this.refreshRoutes = function() {this.route = Math.floor((Math.random()*100)+1); };
+}
 
 towerdef.addHoverListener = function() {
     /**
@@ -112,12 +123,16 @@ towerdef.menuScene = function (director) {
 
 
 towerdef.gameScene = function (director) {
+    //var player = new towerdef.player();
+    //var pokemon = new towerdef.pokemon();
+    
     var gameScene = new lime.Scene();
     director.replaceScene(gameScene);
     
     var music = new lime.audio.Audio("sd.ogg");
     music.play();
     
+    // workaround to allow for looping
     lime.scheduleManager.scheduleWithDelay(function (dt) {
         if (this.playing_ == false) {
             this.play();
@@ -140,7 +155,9 @@ towerdef.gameScene = function (director) {
             ).setDuration(2));
     
     var lGym = new lime.Sprite().setSize(96,80).setFill("gym.png").setPosition(50,250).setAnchorPoint(0.5,0.5);
+    lGym.location = "left";
     var rGym = new lime.Sprite().setSize(96,80).setFill("gym.png").setPosition(850,250).setAnchorPoint(0.5,0.5);
+    rGym.location = "right";
     
     gameLayer.appendChild(rGym);
     gameLayer.appendChild(lGym);
