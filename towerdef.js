@@ -166,6 +166,7 @@ towerdef.gameScene = function (director) {
 	var posY = 450; //Building spawn point
 	addBuildings(gameLayer, posX, posY); //Add building functionality
 	
+	addPokemonButton(gameLayer, posX, posY-70);
 }
 
 towerdef.start = function(){          
@@ -283,15 +284,15 @@ function addBuildings(layer, posX, posY)
 }
 
 function addBuildingButton (layer, posX, posY) {
-	var buildButton = new lime.Label("Add Building").setPosition(posX + 70, posY);
+	var buildButton = new lime.Label("Add Building").setPosition(posX, posY);
 	buildButton.setFill('#f00');
 	buildButton.setPadding(10,10,10,10);
 	layer.appendChild(buildButton);
 	
 	goog.events.listen(buildButton, ['mouseup','touchend'], function(e) {
-		var water = makeDraggable().setFill('water_building.png').setPosition(posX, posY);
-        var fire = makeDraggable().setFill('fire_building.png').setPosition(posX - 30, posY);
-        var grass = makeDraggable().setFill('grass_building.png').setPosition(posX - 60, posY);
+		var water = makeDraggable().setFill('water_building.png').setPosition(posX - 70, posY);
+        var fire = makeDraggable().setFill('fire_building.png').setPosition(posX - 100, posY);
+        var grass = makeDraggable().setFill('grass_building.png').setPosition(posX - 130, posY);
 		layer.appendChild(water);
         layer.appendChild(fire);
         layer.appendChild(grass);
@@ -361,6 +362,32 @@ function makeDroppable() {
   };
   
   return sprite; 
+}
+
+/// Section: buy pokemon
+
+function addPokemonButton (layer, posX, posY) {
+	var buildButton2 = new lime.Label("Buy Pokemon").setPosition(posX, posY);
+	buildButton2.setFill('#f00');
+	buildButton2.setPadding(10,10,10,10);
+	layer.appendChild(buildButton2);
+	
+	goog.events.listen(buildButton2, ['mouseup','touchend'], function(e) {
+		//var pikachu = makeDraggable().setFill('water_building.png').setPosition(posX, posY);
+        var charmander = new lime.Sprite().setFill('Pikachu_1.png').setPosition(posX - 70, posY);
+        var bulbasaur = new lime.Sprite().setFill('Pikachu_1.png').setPosition(posX - 100, posY);
+		var squirtle = new lime.Sprite().setFill('Pikachu_1.png').setPosition(posX - 130, posY);
+		//towerdef.player.pokemon.push(charmander);
+		//towerdef.player.pokemon.push(bulbasaur);
+		//towerdef.player.pokemon.push(squirtle);
+		//layer.appendChild(pikachu);
+        layer.appendChild(charmander);
+        layer.appendChild(bulbasaur);
+		layer.appendChild(squirtle);
+		
+	});
+	
+	return buildButton2;
 }
 
 
