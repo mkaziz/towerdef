@@ -28,13 +28,17 @@ towerdef.player = function(gym) {
         
 }
 
+towerdef.getRandomNumber = function (num) {
+    return Math.floor((Math.random()*num)-1)
+}
+
 towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
     this.health = health;
     this.attack = attack;
     this.type = type;
     this.player = player;
-    this.sprite = new lime.Sprite().setSize(19,19).setFill(spriteUrl).setPosition(player.gym.position_.x,player.gym.position_.y).setAnchorPoint(0.5,0.5);
-    this.route = Math.floor((Math.random()*100)+1);
+    this.sprite = new lime.Sprite().setSize(19,19).setFill(spriteUrl).setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5);
+    this.route = Math.floor((Math.random()*3)+1);
     
     this.refreshRoutes = function() {this.route = Math.floor((Math.random()*100)+1); };
 }
@@ -161,6 +165,18 @@ towerdef.gameScene = function (director) {
     
     gameLayer.appendChild(rGym);
     gameLayer.appendChild(lGym);
+    
+    lPlayer = new towerdef.player(lGym);
+    
+    lPlayer.pokemon.push(new towerdef.pokemon(100,10,"lightning",lPlayer,"Pikachu_1.png"));
+    lPlayer.pokemon.push(new towerdef.pokemon(80,12,"lightning",lPlayer,"Pikachu_1.png"));
+    lPlayer.pokemon.push(new towerdef.pokemon(80,13,"lightning",lPlayer,"Pikachu_1.png"));
+    lPlayer.pokemon.push(new towerdef.pokemon(85,11,"lightning",lPlayer,"Pikachu_1.png"));
+    
+    for (i = 0; i < lPlayer.pokemon.length; i++) {
+        gameLayer.appendChild(lPlayer.pokemon[i].sprite);
+        lPlayer.pokemon[i].sprite.runAction(new lime.animation.MoveTo(rGym.position_.x+towerdef.getRandomNumber(40)-20,rGym.position_.y+50+towerdef.getRandomNumber(40)));
+    }
 	
 	var posX = 750; 
 	var posY = 450; //Building spawn point
