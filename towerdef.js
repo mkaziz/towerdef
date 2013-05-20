@@ -9,6 +9,7 @@ goog.require('lime.Scene');
 goog.require('lime.Layer');
 goog.require('lime.Circle');
 goog.require('lime.Label');
+goog.require('lime.audio.Audio');
 goog.require('lime.animation.Spawn');
 goog.require('lime.animation.FadeTo');
 goog.require('lime.animation.ScaleTo');
@@ -113,6 +114,15 @@ towerdef.menuScene = function (director) {
 towerdef.gameScene = function (director) {
     var gameScene = new lime.Scene();
     director.replaceScene(gameScene);
+    
+    var music = new lime.audio.Audio("sd.ogg");
+    music.play();
+    
+    lime.scheduleManager.scheduleWithDelay(function (dt) {
+        if (this.playing_ == false) {
+            this.play();
+        }
+    }, music, 7000);
     
     var gameLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
     var background = new lime.Sprite().setSize(900,506).setFill("background.png").setPosition(0,0).setAnchorPoint(0,0);
