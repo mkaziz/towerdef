@@ -394,26 +394,26 @@ function addPokemonButton (layer, posX, posY, player, rGym) {
 	string squirtle_pic = pikachu_pic;*/
 	
 	goog.events.listen(buildButton2, ['mouseup','touchend'], function(e) {
-        var charmander = new lime.Sprite().setFill('Pikachu_1.png').setPosition(posX - 70, posY);
-        var bulbasaur = new lime.Sprite().setFill('Pikachu_1.png').setPosition(posX - 100, posY);
-		var squirtle = new lime.Sprite().setFill('Pikachu_1.png').setPosition(posX - 130, posY);
+        var charmander = new lime.Sprite().setFill('charmander.png').setPosition(posX - 70, posY);
+        var bulbasaur = new lime.Sprite().setFill('bulbasaur.png').setPosition(posX - 100, posY);
+		var squirtle = new lime.Sprite().setFill('squirtle.png').setPosition(posX - 130, posY);
 		layer.appendChild(charmander);
 		layer.appendChild(bulbasaur);
 		layer.appendChild(squirtle);
 		
 		goog.events.listen(charmander,  ['mouseup','touchend'], function(e) {
 			console.log("adding charmander");
-			add_pokemon(new towerdef.pokemon(100,10,"fire",lPlayer,'Pikachu_1.png'), player, layer, rGym);
+			add_pokemon(new towerdef.pokemon(100,10,"fire",lPlayer,'charmander.png'), player, layer, rGym);
 			});
 			
 		goog.events.listen(bulbasaur,  ['mouseup','touchend'], function(e) {
 			console.log("adding bulbasaur");
-			add_pokemon(new towerdef.pokemon(100,10,"grass",lPlayer,'Pikachu_1.png'), player, layer, rGym);
+			add_pokemon(new towerdef.pokemon(100,10,"grass",lPlayer,'bulbasaur.png'), player, layer, rGym);
 			});
 		
 		goog.events.listen(squirtle,  ['mouseup','touchend'], function(e) {
 			console.log("adding squirtle");
-			add_pokemon(new towerdef.pokemon(100,10,"water",lPlayer,'Pikachu_1.png'), player, layer, rGym);
+			add_pokemon(new towerdef.pokemon(100,10,"water",lPlayer,'squirtle.png'), player, layer, rGym);
 			});
 		
 	});
