@@ -25,6 +25,7 @@ towerdef.player = function(gym) {
     this.health = 100;
     // left or right
     this.gym = gym;
+    this.money = 100;
         
 }
 
@@ -167,6 +168,8 @@ towerdef.gameScene = function (director) {
     gameLayer.appendChild(lGym);
     
     lPlayer = new towerdef.player(lGym);
+    
+    
     
     lPlayer.pokemon.push(new towerdef.pokemon(100,10,"lightning",lPlayer,"Pikachu_1.png"));
     lPlayer.pokemon.push(new towerdef.pokemon(80,12,"lightning",lPlayer,"Pikachu_1.png"));
