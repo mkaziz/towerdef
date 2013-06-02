@@ -56,11 +56,16 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 }
 
 towerdef.buildingCost = 50;
-towerdef.building = function (name, health, attack, type, player, sprite)  {
+towerdef.building = function (name, health, attack, type, player, sprite_name)  {
 	this.name = name;
 	this.health = health;
 	this.attack = attack;
 	this.type = type;
+	this.player = player;
+	this.sprite = new lime.Sprite().setFill(sprite_name).setAnchorPoint(0.5, 0.5).setSize(20,20);
+	this.level = 1;
+	this.attack_radius = 30;
+	this.attack_interval = 3; //seconds?
 }
 
 towerdef.addHoverListener = function() {
@@ -116,7 +121,7 @@ towerdef.hoverInHandler = function (item, size) {
     return function(e){
         //animate
         item.runAction(new lime.animation.ScaleTo(size).setDuration(.05));
-        console.log("hover in");
+        //console.log("hover in");
     };
 
 };
@@ -124,7 +129,7 @@ towerdef.hoverInHandler = function (item, size) {
 towerdef.hoverOutHandler = function (item, size) {
     
     return function() {
-        console.log("hover out");
+        //console.log("hover out");
         item.runAction(new lime.animation.ScaleTo(size).setDuration(.05));
     }
 };
@@ -244,6 +249,16 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
         pokemon.sprite.setPosition(initX + i * 90, 130);
         pokemon.sprite.runAction(new lime.animation.ScaleTo(1.5),0.5);
     }
+	
+	//add building sprites to HUD
+	for (i=0; i < towerdef.lPlayer.buildings.length; i++) {
+		var building = towerdef.lPlayer.buildings[i];
+		//console.log("Building " + i + ": " + building.name);
+		console.log("Building sprite: " + building.sprite);
+		building.sprite.setPosition(initX + i * 40, 175);
+		building.sprite.runAction(new lime.animation.ScaleTo(1.5),0.5);
+		buildingsLayer.appendChild(building.sprite);
+	}
     
     var moneyLabel = new lime.Label().setPosition(160,100).setFontSize(22).setText(towerdef.lPlayer.money.toString());
     moneyLayer.removeAllChildren();
@@ -279,11 +294,13 @@ towerdef.addBuildingsToConsole = function(gameScene, consoleLayer, pokemonLayer,
 	
 	createBuildingEventListener = function(large_icon_name, small_icon_name, type, name) {
 		goog.events.listen(large_icon_name, ['mousedown','touchstart'], function(e) {
+		var b = new towerdef.building(name, 100,10,type,towerdef.lPlayer, small_icon_name);
 			buyBuildings(function () {
-                towerdef.lPlayer.buildings.push(new towerdef.building(name, 100,10,type,towerdef.lPlayer, small_icon_name));
+                towerdef.lPlayer.buildings.push(b);
             }, name);
 		});
 	}
+
 	
 	createBuildingEventListener(fire_building_icon, "fire_building.png", "fire", "fire type building");
 	createBuildingEventListener(grass_building_icon, "grass_building.png", "grass", "grass type building");
@@ -309,7 +326,6 @@ towerdef.console = function (gameScene, gameLayer) {
     consoleLayer.appendChild(squirtle_icon);
 	
 	
-    
     //TODO: find workaround so you're not passing sprite in twice
     gameScene.listenOverOut(charmander_icon, towerdef.hoverInHandler(charmander_icon, 1.2), towerdef.hoverOutHandler(charmander_icon, 1.0));
     gameScene.listenOverOut(bulbasaur_icon, towerdef.hoverInHandler(bulbasaur_icon, 1.2), towerdef.hoverOutHandler(bulbasaur_icon, 1.0));
