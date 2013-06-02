@@ -131,8 +131,8 @@ towerdef.menuScene = function (director) {
     menuScene.appendChild(layer);
     
     menuScene.listenOverOut(start, towerdef.hoverInHandler(start, 0.7), towerdef.hoverOutHandler(start, 0.6));
-	
-	 goog.events.listen(start,['mousedown','touchstart'],function(e) {
+
+    goog.events.listen(start,['mousedown','touchstart'],function(e) {
         towerdef.gameScene(director);
     });
 
@@ -170,8 +170,8 @@ towerdef.gameScene = function (director) {
     gameLayer.appendChild(rGym);
     gameLayer.appendChild(lGym);
     
-    lPlayer = new towerdef.player(lGym);
-    rPlayer = new towerdef.player(rGym);
+    towerdef.lPlayer = new towerdef.player(lGym);
+    towerdef.rPlayer = new towerdef.player(rGym);
     
     towerdef.console(gameScene, gameLayer);
     
@@ -182,6 +182,18 @@ towerdef.gameScene = function (director) {
 	
 	towerdef.addPokemonButton(gameLayer, posX, posY-70, lPlayer, rGym);
     * */
+}
+
+towerdef.updateConsolePokemonLayer = function (gameScene, pokemonLayer) {
+    
+    var initX = 20;
+    
+    for (i = 0; i < towerdef.lPlayer.pokemon.length; i++) {
+        var pokemon = towerdef.lPlayer.pokemon[i];
+        pokemon.sprite.setPosition(initX + i * 30, 200);
+        pokemonLayer.appendChild(pokemon.sprite);
+    }
+    
 }
 
 towerdef.console = function (gameScene, gameLayer) {
@@ -202,6 +214,25 @@ towerdef.console = function (gameScene, gameLayer) {
     gameScene.listenOverOut(charmander_icon, towerdef.hoverInHandler(charmander_icon, 1.2), towerdef.hoverOutHandler(charmander_icon, 1.0));
     gameScene.listenOverOut(bulbasaur_icon, towerdef.hoverInHandler(bulbasaur_icon, 1.2), towerdef.hoverOutHandler(bulbasaur_icon, 1.0));
     gameScene.listenOverOut(squirtle_icon, towerdef.hoverInHandler(squirtle_icon, 1.2), towerdef.hoverOutHandler(squirtle_icon, 1.0));
+    
+    var pokemonLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
+    gameScene.appendChild(pokemonLayer);
+    towerdef.updateConsolePokemonLayer(gameScene, pokemonLayer);
+    
+    goog.events.listen(charmander_icon,['mousedown','touchstart'],function(e) {
+        towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"fire",towerdef.lPlayer,"charmander.png"));
+        towerdef.updateConsolePokemonLayer(gameScene, pokemonLayer);
+    });
+    
+    goog.events.listen(bulbasaur_icon,['mousedown','touchstart'],function(e) {
+        towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"grass",towerdef.lPlayer,"bulbasaur.png"));
+        towerdef.updateConsolePokemonLayer(gameScene, pokemonLayer);
+    });
+    
+    goog.events.listen(squirtle_icon,['mousedown','touchstart'],function(e) {
+        towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"water",towerdef.lPlayer,"squirtle.png"));
+        towerdef.updateConsolePokemonLayer(gameScene, pokemonLayer);
+    });
     
 }
 
