@@ -1,7 +1,6 @@
 //set main namespace
 goog.provide('towerdef');
 
-
 //get requirements
 goog.require('lime');
 goog.require('lime.Director');
@@ -18,13 +17,16 @@ goog.require('lime.animation.MoveTo');
 goog.require('lime.CoverNode');
 goog.require('lime.animation.ColorTo');
 goog.require('lime.animation.Sequence');
+goog.require('goog.events.EventTarget');
 
 
 towerdef.lPlayer = null;
 towerdef.rPlayer = null;
+towerdef.roundRunTime = 2000; //milliseconds
+//towerdef.timer = new goog.Timer(1);
 
 
-towerdef.player = function(gym) {
+towerdef.player = function(gym, opponent) {
     
     this.pokemon = [];
     this.buildings = [];
@@ -32,6 +34,15 @@ towerdef.player = function(gym) {
     // left or right
     this.gym = gym;
     this.money = 100;
+	this.opponent = opponent;
+	
+	this.buildingAttack = function (buildingsLayer) {
+		for (i = 0; i< this.buildings.length; i++) {
+			for (j = 0; j < this.opponent.pokemon.length; j++) {
+				this.buildings[i].attack(this.opponent.pokemon[j], buildingsLayer);
+			}
+		}
+	}
         
 }
 
@@ -59,13 +70,47 @@ towerdef.buildingCost = 50;
 towerdef.building = function (name, health, attack, type, player, sprite_name)  {
 	this.name = name;
 	this.health = health;
-	this.attack = attack;
+	this.attack_power = attack;
 	this.type = type;
 	this.player = player;
 	this.sprite = new lime.Sprite().setFill(sprite_name).setAnchorPoint(0.5, 0.5).setSize(20,20);
 	this.level = 1;
 	this.attack_radius = 30;
 	this.attack_interval = 3; //seconds?
+	
+	this.isInRange = function(pokemon) {
+		return true;
+	}
+	
+	this.getColor = function () {
+		var color;
+		
+		if (this.type == "fire") {color = '#F00';}
+		else if (this.type == "grass") {color = '#3c0';}
+		else {color == '#00F';}
+	
+		return color;
+	}
+	
+	this.shoot = function(pokemon, buildingsLayer) {
+		console.log("Pew pew");
+		
+		var bullet = new lime.Circle().setSize(5, 5).setFill(this.getColor());
+		buildingsLayer.appendChild(bullet);
+		//TODO: move to position where pokemon will be
+		bullet.runAction(new lime.animation.MoveTo(pokemon.sprite.getPosition().x, pokemon.sprite.getPosition().y), 0.1);
+		//TODO: decreaset that pokemon health according to types
+		pokemon.health -= 5;
+	}
+	
+	
+	this.attack = function(pokemon, buildingsLayer) {
+		if (this.isInRange(pokemon)) {
+			this.shoot(pokemon, buildingsLayer);
+		}
+	}
+	
+
 }
 
 towerdef.addHoverListener = function() {
@@ -166,6 +211,7 @@ towerdef.gameScene = function (director) {
     var gameScene = new lime.Scene();
     director.replaceScene(gameScene);
     
+	/*
     var music = new lime.audio.Audio("sd.ogg");
     music.play();
     
@@ -175,7 +221,8 @@ towerdef.gameScene = function (director) {
             this.play();
         }
     }, music, 7000);
-    
+    */
+	
     var gameLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
     var background = new lime.Sprite().setSize(900,506).setFill("background.png").setPosition(0,0).setAnchorPoint(0,0);
      
@@ -190,8 +237,10 @@ towerdef.gameScene = function (director) {
     gameLayer.appendChild(rGym);
     gameLayer.appendChild(lGym);
     
-    towerdef.lPlayer = new towerdef.player(lGym);
-    towerdef.rPlayer = new towerdef.player(rGym);
+	towerdef.rPlayer = new towerdef.player(rGym, towerdef.lPlayer);
+    towerdef.lPlayer = new towerdef.player(lGym, towerdef.rPlayer);
+	towerdef.rPlayer.opponent = towerdef.lPlayer; //doesn't seem to want to add this when rPlayer is created and lPlayer is still null.
+   
     
     towerdef.console(gameScene, gameLayer);
     
@@ -253,8 +302,6 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
 	//add building sprites to HUD
 	for (i=0; i < towerdef.lPlayer.buildings.length; i++) {
 		var building = towerdef.lPlayer.buildings[i];
-		//console.log("Building " + i + ": " + building.name);
-		console.log("Building sprite: " + building.sprite);
 		building.sprite.setPosition(initX + i * 40, 175);
 		building.sprite.runAction(new lime.animation.ScaleTo(1.5),0.5);
 		buildingsLayer.appendChild(building.sprite);
@@ -393,6 +440,28 @@ towerdef.console = function (gameScene, gameLayer) {
     
 }
 
+towerdef.addBuildingsToRound = function(roundLayer, player) {
+	for (i=0; i < player.buildings.length; i++) {
+		roundLayer.appendChild(player.buildings[i].sprite);
+	}
+	
+	//TODO: chose building positions
+
+}
+
+towerdef.addPokemonToRound = function(roundLayer, player, opponent) {
+    for (i = 0; i < player.pokemon.length; i++) {
+		var mySprite = player.pokemon[i].sprite;
+        roundLayer.appendChild(mySprite);
+        mySprite.removeAllChildren();
+        player.pokemon[i].resetRoundPosition();
+
+		// pokemon movng towards opposite gym action
+        player.pokemon[i].sprite.runAction(
+			new lime.animation.MoveTo(opponent.gym.position_.x+towerdef.getRandomNumber(40)-20,opponent.gym.position_.y+50+towerdef.getRandomNumber(40)));
+    }
+}
+
 towerdef.playRound = function (gameScene, gameLayer) {
     
     var roundLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
@@ -406,20 +475,23 @@ towerdef.playRound = function (gameScene, gameLayer) {
                 new lime.animation.ScaleTo(0.5)
             ).setDuration(1));
     
-    //towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"lightning",towerdef.lPlayer,"Pikachu_1.png"));
-    
-    for (i = 0; i < towerdef.lPlayer.pokemon.length; i++) {
-        roundLayer.appendChild(towerdef.lPlayer.pokemon[i].sprite);
-        towerdef.lPlayer.pokemon[i].sprite.removeAllChildren();
-        towerdef.lPlayer.pokemon[i].resetRoundPosition();
-        towerdef.lPlayer.pokemon[i].sprite.runAction(new lime.animation.MoveTo(towerdef.rPlayer.gym.position_.x+towerdef.getRandomNumber(40)-20,towerdef.rPlayer.gym.position_.y+50+towerdef.getRandomNumber(40)));
-    }
+	//opponent test pokemon
+    towerdef.rPlayer.pokemon.push(new towerdef.pokemon(100,10,"lightning",towerdef.rPlayer,"Pikachu_1.png"));
+	
+	towerdef.addBuildingsToRound(roundLayer, towerdef.lPlayer);
+	//goog.events.listen(timer, 'tick', function(e) {
+		towerdef.lPlayer.buildingAttack(roundLayer);
+		towerdef.rPlayer.buildingAttack(roundLayer);
+	//});
+	
+	towerdef.addPokemonToRound(roundLayer, towerdef.lPlayer, towerdef.rPlayer);
+	towerdef.addPokemonToRound(roundLayer, towerdef.rPlayer, towerdef.lPlayer);
     
     lime.scheduleManager.callAfter(function (dt) {
         gameLayer.removeChild(roundLayer);
         towerdef.lPlayer.money += 20;
         towerdef.console(gameScene, gameLayer);
-    }, gameScene, 2000);
+    }, gameScene, towerdef.roundRunTime);
     
 }
 
