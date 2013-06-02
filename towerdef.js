@@ -9,6 +9,7 @@ goog.require('lime.Scene');
 goog.require('lime.Layer');
 goog.require('lime.Circle');
 goog.require('lime.Label');
+goog.require('lime.GlossyButton');
 goog.require('lime.audio.Audio');
 goog.require('lime.animation.Spawn');
 goog.require('lime.animation.FadeTo');
@@ -26,6 +27,7 @@ towerdef.rPlayer = null;
 towerdef.player = function(gym) {
     
     this.pokemon = [];
+    this.buildings = [];
     this.health = 100;
     // left or right
     this.gym = gym;
@@ -47,6 +49,10 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
     this.route = Math.floor((Math.random()*3)+1);
     
     this.refreshRoutes = function() {this.route = Math.floor((Math.random()*100)+1); };
+    this.resetRoundPosition = function () {
+        this.sprite.setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,
+        player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5)
+    };
 }
 
 towerdef.addHoverListener = function() {
@@ -185,37 +191,61 @@ towerdef.gameScene = function (director) {
     * */
 }
 
-towerdef.updateConsolePokemonLayer = function (gameScene, pokemonLayer) {
+towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, buildingsLayer) {
     
     var initX = 200;
     
-    if (towerdef.lPlayer.pokemon.length >= 9) {
-        
-        return;
-    }
-    
+    pokemonLayer.removeAllChildren();
+
     for (i = 0; i < towerdef.lPlayer.pokemon.length; i++) {
         var pokemon = towerdef.lPlayer.pokemon[i];
+        pokemon.sprite.removeAllChildren();
         pokemon.sprite.setPosition(initX + i * 90, 130);
         pokemonLayer.appendChild(pokemon.sprite);
+
         var label = new lime.Label()
             .setPosition(0, 12)
             .setFontSize(7);
+
+        if (pokemon.type == "fire")
+            label.setText("Charmander - lvl" + pokemon.level.toString());
+        else if (pokemon.type == "grass")
+            label.setText("Bulbasaur - lvl" + pokemon.level.toString());
+        else if (pokemon.type == "water")
+            label.setText("Squirtle - lvl" + pokemon.level.toString());
             
-        if (towerdef.lPlayer.pokemon[i].type == "fire")
-            label.setText("Charmander - lvl" + towerdef.lPlayer.pokemon[i].level.toString());
-        else if (towerdef.lPlayer.pokemon[i].type == "grass")
-            label.setText("Bulbasaur - lvl" + towerdef.lPlayer.pokemon[i].level.toString());
-        else if (towerdef.lPlayer.pokemon[i].type == "water")
-            label.setText("Squirtle - lvl" + towerdef.lPlayer.pokemon[i].level.toString());
-            
+        var lvlUpButton = new lime.GlossyButton("Lvl up!");
+        lvlUpButton.setPosition(0, 22).setSize(30,15).setFontSize(7);
+        
+        // lvl up
+        goog.events.listen(lvlUpButton, ['mousedown','touchstart'], function(e) {
+            if (towerdef.lPlayer.money >= 5) {
+                pokemon.attack += 2
+                pokemon.health += 2
+                pokemon.level += 1;
+                towerdef.lPlayer.money -= 5;
+                towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
+            }
+            else {
+                alert("Not enough money to level up.");
+            }
+        });
+
         pokemon.sprite.appendChild(label);
+        pokemon.sprite.appendChild(lvlUpButton);
         pokemon.sprite.runAction(new lime.animation.ScaleTo(1.5),0.5);
     }
+    
+    var moneyLabel = new lime.Label().setPosition(160,100).setFontSize(22).setText(towerdef.lPlayer.money.toString());
+    moneyLayer.removeAllChildren();
+    moneyLayer.appendChild(moneyLabel);
     
 }
 
 towerdef.console = function (gameScene, gameLayer) {
+    
+    var consoleLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
+    gameLayer.appendChild(consoleLayer);
     
     var console = new lime.Sprite().setSize(900,506).setFill("Console.png").setPosition(450,253).setAnchorPoint(0.5,0.5);
     
@@ -223,11 +253,12 @@ towerdef.console = function (gameScene, gameLayer) {
     var bulbasaur_icon = new lime.Sprite().setFill('bulbasaur_icon.png').setPosition(225, 350).setAnchorPoint(0.5,0.5);
     var squirtle_icon = new lime.Sprite().setFill('squirtle_icon.png').setPosition(350, 350).setAnchorPoint(0.5,0.5);
     
-    gameLayer.appendChild(console);
+    consoleLayer.appendChild(console);
     
-    gameLayer.appendChild(charmander_icon);
-    gameLayer.appendChild(bulbasaur_icon);
-    gameLayer.appendChild(squirtle_icon);
+    consoleLayer.appendChild(charmander_icon);
+    consoleLayer.appendChild(bulbasaur_icon);
+    consoleLayer.appendChild(squirtle_icon);
+    
     
     //TODO: find workaround so you're not passing sprite in twice
     gameScene.listenOverOut(charmander_icon, towerdef.hoverInHandler(charmander_icon, 1.2), towerdef.hoverOutHandler(charmander_icon, 1.0));
@@ -235,45 +266,83 @@ towerdef.console = function (gameScene, gameLayer) {
     gameScene.listenOverOut(squirtle_icon, towerdef.hoverInHandler(squirtle_icon, 1.2), towerdef.hoverOutHandler(squirtle_icon, 1.0));
     
     var pokemonLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
-    gameScene.appendChild(pokemonLayer);
-    towerdef.updateConsolePokemonLayer(gameScene, pokemonLayer);
+    consoleLayer.appendChild(pokemonLayer);
     
-    goog.events.listen(charmander_icon,['mousedown','touchstart'],function(e) {
-        towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"fire",towerdef.lPlayer,"charmander.png"));
-        towerdef.updateConsolePokemonLayer(gameScene, pokemonLayer);
+    var moneyLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
+    consoleLayer.appendChild(moneyLayer);
+
+    var buildingsLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
+    consoleLayer.appendChild(buildingsLayer);
+    towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
+
+    var buyPokemon = function (createPokemonFn, pokemonName) {
+        
+        if (towerdef.lPlayer.pokemon.length >= 8) {
+            alert("You can't buy more than 8 pokemon");
+            return;
+        }
+        
+        if (towerdef.lPlayer.money >= 20) {
+            towerdef.lPlayer.money -= 20;
+            createPokemonFn();
+            towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
+        }
+        else {
+            alert("You don't have enough money to buy a " + pokemonName);
+        }
+        
+    }
+    
+    var playButton = new lime.GlossyButton("Play Round");
+    playButton.setPosition(450, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
+    
+    consoleLayer.appendChild(playButton);
+    
+    goog.events.listen(playButton, ['mousedown','touchstart'], function(e) {
+        gameLayer.removeChild(consoleLayer);
+        towerdef.playRound(gameLayer);
     });
     
-    goog.events.listen(bulbasaur_icon,['mousedown','touchstart'],function(e) {
-        towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"grass",towerdef.lPlayer,"bulbasaur.png"));
-        towerdef.updateConsolePokemonLayer(gameScene, pokemonLayer);
+    goog.events.listen(charmander_icon, ['mousedown','touchstart'], function(e) {
+        buyPokemon(function () {
+                towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"fire",towerdef.lPlayer,"charmander.png"));
+            }, "Charmander");
     });
-    
-    goog.events.listen(squirtle_icon,['mousedown','touchstart'],function(e) {
-        towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"water",towerdef.lPlayer,"squirtle.png"));
-        towerdef.updateConsolePokemonLayer(gameScene, pokemonLayer);
+
+    goog.events.listen(bulbasaur_icon, ['mousedown','touchstart'], function(e) {
+        buyPokemon(function () {
+            towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"grass",towerdef.lPlayer,"bulbasaur.png"));
+            }, "Bulbasaur");
+    });
+
+    goog.events.listen(squirtle_icon, ['mousedown','touchstart'], function(e) {
+        buyPokemon(function () {
+            towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"water",towerdef.lPlayer,"squirtle.png"));
+        }, "Squirtle");
     });
     
 }
 
 towerdef.playRound = function (gameLayer) {
     
+    var roundLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
     var starting = new lime.Sprite().setSize(540,160).setFill("starting.png").setPosition(450,150).setAnchorPoint(0.5,0.5).setScale(1.5,1.5);
     
-    gameLayer.appendChild(starting);
+    gameLayer.appendChild(roundLayer);
+    roundLayer.appendChild(starting);
     
     starting.runAction(new lime.animation.Spawn(
                 new lime.animation.FadeTo(0),
                 new lime.animation.ScaleTo(0.5)
             ).setDuration(2));
     
-    towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"lightning",lPlayer,"Pikachu_1.png"));
-    towerdef.lPlayer.pokemon.push(new towerdef.pokemon(80,12,"lightning",lPlayer,"Pikachu_1.png"));
-    towerdef.lPlayer.pokemon.push(new towerdef.pokemon(80,13,"lightning",lPlayer,"Pikachu_1.png"));
-    towerdef.lPlayer.pokemon.push(new towerdef.pokemon(85,11,"lightning",lPlayer,"Pikachu_1.png"));
+    towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"lightning",towerdef.lPlayer,"Pikachu_1.png"));
     
     for (i = 0; i < towerdef.lPlayer.pokemon.length; i++) {
-        gameLayer.appendChild(lPlayer.pokemon[i].sprite);
-        towerdef.lPlayer.pokemon[i].sprite.runAction(new lime.animation.MoveTo(rGym.position_.x+towerdef.getRandomNumber(40)-20,rGym.position_.y+50+towerdef.getRandomNumber(40)));
+        roundLayer.appendChild(towerdef.lPlayer.pokemon[i].sprite);
+        towerdef.lPlayer.pokemon[i].sprite.removeAllChildren();
+        towerdef.lPlayer.pokemon[i].resetRoundPosition();
+        towerdef.lPlayer.pokemon[i].sprite.runAction(new lime.animation.MoveTo(towerdef.rPlayer.gym.position_.x+towerdef.getRandomNumber(40)-20,towerdef.rPlayer.gym.position_.y+50+towerdef.getRandomNumber(40)));
     }
     
 }
@@ -382,30 +451,30 @@ towerdef.addBuildings = function (layer, posX, posY)
 ///Add all building drag-drop functionality to game
 /// pass in the layer to add the buildings to, the X and Y position of the building spawn point
 {
-	towerdef.buildDropMap(layer);
-	
-	//var dragLocation = new lime.Sprite().setSize(20,20).setFill('#000').setPosition(posX,posY);
-	//layer.appendChild(dragLocation);
-	
-	var buildButton = towerdef.addBuildingButton (layer, posX, posY);
-	
+    towerdef.buildDropMap(layer);
+
+    //var dragLocation = new lime.Sprite().setSize(20,20).setFill('#000').setPosition(posX,posY);
+    //layer.appendChild(dragLocation);
+
+    var buildButton = towerdef.addBuildingButton (layer, posX, posY);
+
 
 }
 
 towerdef.addBuildingButton = function(layer, posX, posY) {
-	var buildButton = new lime.Label("Add Building").setPosition(posX, posY);
-	buildButton.setFill('#f00');
-	buildButton.setPadding(10,10,10,10);
-	layer.appendChild(buildButton);
-	
-	goog.events.listen(buildButton, ['mouseup','touchend'], function(e) {
-		var water = towerdef.makeDraggable().setFill('water_building.png').setPosition(posX - 70, posY);
+    var buildButton = new lime.Label("Add Building").setPosition(posX, posY);
+    buildButton.setFill('#f00');
+    buildButton.setPadding(10,10,10,10);
+    layer.appendChild(buildButton);
+    
+    goog.events.listen(buildButton, ['mouseup','touchend'], function(e) {
+        var water = towerdef.makeDraggable().setFill('water_building.png').setPosition(posX - 70, posY);
         var fire = towerdef.makeDraggable().setFill('fire_building.png').setPosition(posX - 100, posY);
         var grass = towerdef.makeDraggable().setFill('grass_building.png').setPosition(posX - 130, posY);
-		layer.appendChild(water);
+        layer.appendChild(water);
         layer.appendChild(fire);
         layer.appendChild(grass);
-	});
+    });
 	
 	return buildButton;
 }
