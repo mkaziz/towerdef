@@ -19,6 +19,10 @@ goog.require('lime.animation.ColorTo');
 goog.require('lime.animation.Sequence');
 
 
+towerdef.lPlayer = null;
+towerdef.rPlayer = null;
+
+
 towerdef.player = function(gym) {
     
     this.pokemon = [];
@@ -92,7 +96,23 @@ towerdef.addHoverListener = function() {
     
 }
     
+towerdef.hoverInHandler = function (item, size) {
 
+    return function(e){
+        //animate
+        item.runAction(new lime.animation.ScaleTo(size).setDuration(.05));
+        console.log("hover in");
+    };
+
+};
+
+towerdef.hoverOutHandler = function (item, size) {
+    
+    return function() {
+        console.log("hover out");
+        item.runAction(new lime.animation.ScaleTo(size).setDuration(.05));
+    }
+};
     
 towerdef.menuScene = function (director) {
     var menuScene = new lime.Scene();
@@ -110,15 +130,7 @@ towerdef.menuScene = function (director) {
     
     menuScene.appendChild(layer);
     
-    menuScene.listenOverOut(start,function(e){
-        //animate
-        start.runAction(new lime.animation.ScaleTo(0.7).setDuration(.05));
-        
-        console.log("hover in");
-    }, function() {
-        console.log("hover out");
-        start.runAction(new lime.animation.ScaleTo(0.6).setDuration(.05));
-    });
+    menuScene.listenOverOut(start, towerdef.hoverInHandler(start, 0.7), towerdef.hoverOutHandler(start, 0.6));
 	
 	 goog.events.listen(start,['mousedown','touchstart'],function(e) {
         towerdef.gameScene(director);
@@ -150,15 +162,6 @@ towerdef.gameScene = function (director) {
     gameLayer.appendChild(background);
     gameScene.appendChild(gameLayer);
     
-    var starting = new lime.Sprite().setSize(540,160).setFill("starting.png").setPosition(450,150).setAnchorPoint(0.5,0.5).setScale(1.5,1.5);
-    
-    gameLayer.appendChild(starting);
-    
-    starting.runAction(new lime.animation.Spawn(
-                new lime.animation.FadeTo(0),
-                new lime.animation.ScaleTo(0.5)
-            ).setDuration(2));
-    
     var lGym = new lime.Sprite().setSize(96,80).setFill("gym.png").setPosition(50,250).setAnchorPoint(0.5,0.5);
     lGym.location = "left";
     var rGym = new lime.Sprite().setSize(96,80).setFill("gym.png").setPosition(850,250).setAnchorPoint(0.5,0.5);
@@ -168,24 +171,61 @@ towerdef.gameScene = function (director) {
     gameLayer.appendChild(lGym);
     
     lPlayer = new towerdef.player(lGym);
+    rPlayer = new towerdef.player(rGym);
     
+    towerdef.console(gameScene, gameLayer);
     
-    
-    lPlayer.pokemon.push(new towerdef.pokemon(100,10,"lightning",lPlayer,"Pikachu_1.png"));
-    lPlayer.pokemon.push(new towerdef.pokemon(80,12,"lightning",lPlayer,"Pikachu_1.png"));
-    lPlayer.pokemon.push(new towerdef.pokemon(80,13,"lightning",lPlayer,"Pikachu_1.png"));
-    lPlayer.pokemon.push(new towerdef.pokemon(85,11,"lightning",lPlayer,"Pikachu_1.png"));
-    
-    for (i = 0; i < lPlayer.pokemon.length; i++) {
-        gameLayer.appendChild(lPlayer.pokemon[i].sprite);
-        lPlayer.pokemon[i].sprite.runAction(new lime.animation.MoveTo(rGym.position_.x+towerdef.getRandomNumber(40)-20,rGym.position_.y+50+towerdef.getRandomNumber(40)));
-    }
-	
+    /*
 	var posX = 750; 
 	var posY = 450; //Building spawn point
 	towerdef.addBuildings(gameLayer, posX, posY); //Add building functionality
 	
 	towerdef.addPokemonButton(gameLayer, posX, posY-70, lPlayer, rGym);
+    * */
+}
+
+towerdef.console = function (gameScene, gameLayer) {
+    
+    var console = new lime.Sprite().setSize(900,506).setFill("Console.png").setPosition(450,253).setAnchorPoint(0.5,0.5);
+    
+    var charmander_icon = new lime.Sprite().setFill('charmander_icon.png').setPosition(100, 350).setAnchorPoint(0.5,0.5);
+    var bulbasaur_icon = new lime.Sprite().setFill('bulbasaur_icon.png').setPosition(225, 350).setAnchorPoint(0.5,0.5);
+    var squirtle_icon = new lime.Sprite().setFill('squirtle_icon.png').setPosition(350, 350).setAnchorPoint(0.5,0.5);
+    
+    gameLayer.appendChild(console);
+    
+    gameLayer.appendChild(charmander_icon);
+    gameLayer.appendChild(bulbasaur_icon);
+    gameLayer.appendChild(squirtle_icon);
+    
+    //TODO: find workaround so you're not passing sprite in twice
+    gameScene.listenOverOut(charmander_icon, towerdef.hoverInHandler(charmander_icon, 1.2), towerdef.hoverOutHandler(charmander_icon, 1.0));
+    gameScene.listenOverOut(bulbasaur_icon, towerdef.hoverInHandler(bulbasaur_icon, 1.2), towerdef.hoverOutHandler(bulbasaur_icon, 1.0));
+    gameScene.listenOverOut(squirtle_icon, towerdef.hoverInHandler(squirtle_icon, 1.2), towerdef.hoverOutHandler(squirtle_icon, 1.0));
+    
+}
+
+towerdef.playRound = function (gameLayer) {
+    
+    var starting = new lime.Sprite().setSize(540,160).setFill("starting.png").setPosition(450,150).setAnchorPoint(0.5,0.5).setScale(1.5,1.5);
+    
+    gameLayer.appendChild(starting);
+    
+    starting.runAction(new lime.animation.Spawn(
+                new lime.animation.FadeTo(0),
+                new lime.animation.ScaleTo(0.5)
+            ).setDuration(2));
+    
+    towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"lightning",lPlayer,"Pikachu_1.png"));
+    towerdef.lPlayer.pokemon.push(new towerdef.pokemon(80,12,"lightning",lPlayer,"Pikachu_1.png"));
+    towerdef.lPlayer.pokemon.push(new towerdef.pokemon(80,13,"lightning",lPlayer,"Pikachu_1.png"));
+    towerdef.lPlayer.pokemon.push(new towerdef.pokemon(85,11,"lightning",lPlayer,"Pikachu_1.png"));
+    
+    for (i = 0; i < towerdef.lPlayer.pokemon.length; i++) {
+        gameLayer.appendChild(lPlayer.pokemon[i].sprite);
+        towerdef.lPlayer.pokemon[i].sprite.runAction(new lime.animation.MoveTo(rGym.position_.x+towerdef.getRandomNumber(40)-20,rGym.position_.y+50+towerdef.getRandomNumber(40)));
+    }
+    
 }
 
 towerdef.start = function(){          
@@ -396,7 +436,7 @@ towerdef.addPokemonButton = function (layer, posX, posY, player, rGym) {
         var bulbasaur = new lime.Sprite().setFill('bulbasaur.png').setPosition(posX - 100, posY);
 		var squirtle = new lime.Sprite().setFill('squirtle.png').setPosition(posX - 130, posY);
 		layer.appendChild(charmander);
-		layer.appendChild(bulbasaur);
+		layer.appendChild(bulbasaur_icon);
 		layer.appendChild(squirtle);
 		
 		goog.events.listen(charmander,  ['mouseup','touchend'], function(e) {
@@ -404,8 +444,8 @@ towerdef.addPokemonButton = function (layer, posX, posY, player, rGym) {
 			towerdef.add_pokemon(new towerdef.pokemon(100,10,"fire",lPlayer,'charmander.png'), player, layer, rGym);
 			});
 			
-		goog.events.listen(bulbasaur,  ['mouseup','touchend'], function(e) {
-			console.log("adding bulbasaur");
+		goog.events.listen(bulbasaur_icon,  ['mouseup','touchend'], function(e) {
+			console.log("adding bulbasaur_icon");
 			towerdef.add_pokemon(new towerdef.pokemon(100,10,"grass",lPlayer,'bulbasaur.png'), player, layer, rGym);
 			});
 		
