@@ -200,7 +200,6 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
     for (i = 0; i < towerdef.lPlayer.pokemon.length; i++) {
         var pokemon = towerdef.lPlayer.pokemon[i];
         pokemon.sprite.removeAllChildren();
-        pokemon.sprite.setPosition(initX + i * 90, 130);
         pokemonLayer.appendChild(pokemon.sprite);
 
         var label = new lime.Label()
@@ -215,14 +214,15 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
             label.setText("Squirtle - lvl" + pokemon.level.toString());
             
         var lvlUpButton = new lime.GlossyButton("Lvl up!");
+        lvlUpButton.pokemon = pokemon;
         lvlUpButton.setPosition(0, 22).setSize(30,15).setFontSize(7);
         
         // lvl up
         goog.events.listen(lvlUpButton, ['mousedown','touchstart'], function(e) {
             if (towerdef.lPlayer.money >= 5) {
-                pokemon.attack += 2
-                pokemon.health += 2
-                pokemon.level += 1;
+                this.pokemon.attack += 2
+                this.pokemon.health += 2
+                this.pokemon.level += 1;
                 towerdef.lPlayer.money -= 5;
                 towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
             }
@@ -233,6 +233,7 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
 
         pokemon.sprite.appendChild(label);
         pokemon.sprite.appendChild(lvlUpButton);
+        pokemon.sprite.setPosition(initX + i * 90, 130);
         pokemon.sprite.runAction(new lime.animation.ScaleTo(1.5),0.5);
     }
     
@@ -273,7 +274,6 @@ towerdef.console = function (gameScene, gameLayer) {
 
     var buildingsLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
     consoleLayer.appendChild(buildingsLayer);
-    towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
 
     var buyPokemon = function (createPokemonFn, pokemonName) {
         
@@ -297,10 +297,11 @@ towerdef.console = function (gameScene, gameLayer) {
     playButton.setPosition(450, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
     
     consoleLayer.appendChild(playButton);
+    towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
     
     goog.events.listen(playButton, ['mousedown','touchstart'], function(e) {
         gameLayer.removeChild(consoleLayer);
-        towerdef.playRound(gameLayer);
+        towerdef.playRound(gameScene, gameLayer);
     });
     
     goog.events.listen(charmander_icon, ['mousedown','touchstart'], function(e) {
@@ -323,7 +324,7 @@ towerdef.console = function (gameScene, gameLayer) {
     
 }
 
-towerdef.playRound = function (gameLayer) {
+towerdef.playRound = function (gameScene, gameLayer) {
     
     var roundLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
     var starting = new lime.Sprite().setSize(540,160).setFill("starting.png").setPosition(450,150).setAnchorPoint(0.5,0.5).setScale(1.5,1.5);
@@ -334,9 +335,9 @@ towerdef.playRound = function (gameLayer) {
     starting.runAction(new lime.animation.Spawn(
                 new lime.animation.FadeTo(0),
                 new lime.animation.ScaleTo(0.5)
-            ).setDuration(2));
+            ).setDuration(1));
     
-    towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"lightning",towerdef.lPlayer,"Pikachu_1.png"));
+    //towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,"lightning",towerdef.lPlayer,"Pikachu_1.png"));
     
     for (i = 0; i < towerdef.lPlayer.pokemon.length; i++) {
         roundLayer.appendChild(towerdef.lPlayer.pokemon[i].sprite);
@@ -344,6 +345,12 @@ towerdef.playRound = function (gameLayer) {
         towerdef.lPlayer.pokemon[i].resetRoundPosition();
         towerdef.lPlayer.pokemon[i].sprite.runAction(new lime.animation.MoveTo(towerdef.rPlayer.gym.position_.x+towerdef.getRandomNumber(40)-20,towerdef.rPlayer.gym.position_.y+50+towerdef.getRandomNumber(40)));
     }
+    
+    lime.scheduleManager.callAfter(function (dt) {
+        gameLayer.removeChild(roundLayer);
+        towerdef.lPlayer.money += 20;
+        towerdef.console(gameScene, gameLayer);
+    }, gameScene, 2000);
     
 }
 
