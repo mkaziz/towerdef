@@ -42,6 +42,7 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
     this.attack = attack;
     this.type = type;
     this.player = player;
+    this.level = 1;
     this.sprite = new lime.Sprite().setSize(19,19).setFill(spriteUrl).setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5);
     this.route = Math.floor((Math.random()*3)+1);
     
@@ -186,12 +187,30 @@ towerdef.gameScene = function (director) {
 
 towerdef.updateConsolePokemonLayer = function (gameScene, pokemonLayer) {
     
-    var initX = 20;
+    var initX = 200;
+    
+    if (towerdef.lPlayer.pokemon.length >= 9) {
+        
+        return;
+    }
     
     for (i = 0; i < towerdef.lPlayer.pokemon.length; i++) {
         var pokemon = towerdef.lPlayer.pokemon[i];
-        pokemon.sprite.setPosition(initX + i * 30, 200);
+        pokemon.sprite.setPosition(initX + i * 90, 130);
         pokemonLayer.appendChild(pokemon.sprite);
+        var label = new lime.Label()
+            .setPosition(0, 12)
+            .setFontSize(7);
+            
+        if (towerdef.lPlayer.pokemon[i].type == "fire")
+            label.setText("Charmander - lvl" + towerdef.lPlayer.pokemon[i].level.toString());
+        else if (towerdef.lPlayer.pokemon[i].type == "grass")
+            label.setText("Bulbasaur - lvl" + towerdef.lPlayer.pokemon[i].level.toString());
+        else if (towerdef.lPlayer.pokemon[i].type == "water")
+            label.setText("Squirtle - lvl" + towerdef.lPlayer.pokemon[i].level.toString());
+            
+        pokemon.sprite.appendChild(label);
+        pokemon.sprite.runAction(new lime.animation.ScaleTo(1.5),0.5);
     }
     
 }
