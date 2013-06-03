@@ -19,58 +19,8 @@ goog.require('lime.animation.ColorTo');
 goog.require('lime.animation.Sequence');
 goog.require('goog.events.EventTarget');
 
-
-towerdef.lPlayer = null;
-towerdef.rPlayer = null;
-towerdef.roundRunTime = 2000; //milliseconds
-//towerdef.timer = new goog.Timer(1);
-
-
-towerdef.player = function(gym, opponent) {
-    
-    this.pokemon = [];
-    this.buildings = [];
-    this.health = 100;
-    // left or right
-    this.gym = gym;
-    this.money = 100;
-	this.opponent = opponent;
-	
-	this.buildingAttack = function (buildingsLayer) {
-		for (i = 0; i< this.buildings.length; i++) {
-			for (j = 0; j < this.opponent.pokemon.length; j++) {
-				this.buildings[i].attack(this.opponent.pokemon[j], buildingsLayer);
-			}
-		}
-	}
-        
-}
-
 towerdef.getRandomNumber = function (num) {
     return Math.floor((Math.random()*num)-1)
-}
-
-towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
-    this.health = health;
-    this.attack = attack;
-    this.type = type;
-    this.player = player;
-    this.level = 1;
-    this.sprite = new lime.Sprite().setSize(19,19).setFill(spriteUrl).setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5);
-    this.route = Math.floor((Math.random()*3)+1);
-    
-    this.refreshRoutes = function() {this.route = Math.floor((Math.random()*100)+1); };
-    this.resetRoundPosition = function () {
-        this.sprite.setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,
-        player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5)
-    };
-	
-	this.checkFainted = function () {
-		if (this.health <= 0) {
-			return true;
-		}
-		return false;
-	}
 }
 
 towerdef.strengths = [ 
@@ -125,6 +75,56 @@ towerdef.distance = function(sprite1, sprite2) {
 	return Math.sqrt ( xd * xd + yd * yd);
 }
 
+towerdef.lPlayer = null;
+towerdef.rPlayer = null;
+towerdef.roundRunTime = 2000; //milliseconds
+//towerdef.timer = new goog.Timer(1);
+
+
+towerdef.player = function(gym, opponent) {
+    
+    this.pokemon = [];
+    this.buildings = [];
+    this.health = 100;
+    // left or right
+    this.gym = gym;
+    this.money = 100;
+	this.opponent = opponent;
+	
+	this.buildingAttack = function (buildingsLayer) {
+		for (i = 0; i< this.buildings.length; i++) {
+			for (j = 0; j < this.opponent.pokemon.length; j++) {
+				this.buildings[i].attack(this.opponent.pokemon[j], buildingsLayer);
+			}
+		}
+	}
+        
+}
+
+towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
+    this.health = health;
+    this.attack = attack;
+    this.type = type;
+    this.player = player;
+    this.level = 1;
+    this.sprite = new lime.Sprite().setSize(19,19).setFill(spriteUrl).setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5);
+    this.route = Math.floor((Math.random()*3)+1);
+    
+    this.refreshRoutes = function() {this.route = Math.floor((Math.random()*100)+1); };
+    this.resetRoundPosition = function () {
+        this.sprite.setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,
+        player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5)
+    };
+	
+	this.checkFainted = function () {
+		if (this.health <= 0) {
+			return true;
+		}
+		return false;
+	}
+}
+
+
 towerdef.buildingCost = 50;
 towerdef.building = function (name, health, attack, type, player, sprite_name)  {
 	this.name = name;
@@ -163,8 +163,8 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 		bullet.runAction(new lime.animation.MoveTo(pokemon.sprite.getPosition().x, pokemon.sprite.getPosition().y), 0.1);
 		//TODO: decreaset that pokemon health according to types
 		//pokemon.health -= 5;
-		pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
-		console.log(pokemon.type + " pokemon at level " + pokemon.level + " now has " + pokemon.health +  " health. ");
+		//pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
+		//console.log(pokemon.type + " pokemon at level " + pokemon.level + " now has " + pokemon.health +  " health. ");
 
 	}
 	
@@ -177,6 +177,8 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 	
 
 }
+
+
 
 towerdef.addHoverListener = function() {
     /**
@@ -270,13 +272,10 @@ towerdef.menuScene = function (director) {
 
 
 towerdef.gameScene = function (director) {
-    //var player = new towerdef.player();
-    //var pokemon = new towerdef.pokemon();
-    
+   
     var gameScene = new lime.Scene();
     director.replaceScene(gameScene);
     
-	/*
     var music = new lime.audio.Audio("sd.ogg");
     music.play();
     
@@ -286,7 +285,7 @@ towerdef.gameScene = function (director) {
             this.play();
         }
     }, music, 7000);
-    */
+    
 	
     var gameLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
     var background = new lime.Sprite().setSize(900,506).setFill("background.png").setPosition(0,0).setAnchorPoint(0,0);
@@ -308,14 +307,7 @@ towerdef.gameScene = function (director) {
    
     
     towerdef.console(gameScene, gameLayer);
-    
-    /*
-	var posX = 750; 
-	var posY = 450; //Building spawn point
-	towerdef.addBuildings(gameLayer, posX, posY); //Add building functionality
-	
-	towerdef.addPokemonButton(gameLayer, posX, posY-70, lPlayer, rGym);
-    * */
+
 }
 
 towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, buildingsLayer) {
@@ -442,8 +434,6 @@ towerdef.console = function (gameScene, gameLayer) {
     gameScene.listenOverOut(charmander_icon, towerdef.hoverInHandler(charmander_icon, 1.2), towerdef.hoverOutHandler(charmander_icon, 1.0));
     gameScene.listenOverOut(bulbasaur_icon, towerdef.hoverInHandler(bulbasaur_icon, 1.2), towerdef.hoverOutHandler(bulbasaur_icon, 1.0));
     gameScene.listenOverOut(squirtle_icon, towerdef.hoverInHandler(squirtle_icon, 1.2), towerdef.hoverOutHandler(squirtle_icon, 1.0));
-	
-
     
     var pokemonLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
     consoleLayer.appendChild(pokemonLayer);
@@ -514,6 +504,8 @@ towerdef.addBuildingsToRound = function(roundLayer, player) {
 
 }
 
+
+
 towerdef.addPokemonToRound = function(roundLayer, player, opponent) {
     for (i = 0; i < player.pokemon.length; i++) {
 		var mySprite = player.pokemon[i].sprite;
@@ -568,235 +560,9 @@ towerdef.start = function(){
     towerdef.addHoverListener();
     towerdef.menuScene(director);
     
-    /*
-    var mapScene = new lime.Scene();              
-    director.replaceScene(mapScene); 
-    
-    
-    var mapLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
-    var gameMap = new lime.Sprite().setSize(900,506).setFill("background.png").setPosition(0,0).setAnchorPoint(0,0);
-     
-    mapLayer.appendChild(gameMap);
-    mapScene.appendChild(mapLayer);
-    
-    
-    var pikachu = new lime.Sprite().setSize(19,19).setFill("Pikachu_1.png").setPosition(0,0).setAnchorPoint(0,0);
-    
-    mapLayer.appendChild(pikachu);
-    
-    
-    lime.scheduleManager.scheduleWithDelay(function (dt) {
-        var pikachu = new lime.Sprite().setSize(19,19).setFill("Pikachu_1.png").setPosition(0,0).setAnchorPoint(0,0);
-        this.appendChild(pikachu);
-        var movement = new lime.animation.MoveTo(Math.floor((Math.random()*500)+1),Math.floor((Math.random()*500)+1)).setDuration(1.0);
-        pikachu.runAction(movement);
-    }, mapLayer, 10000);
-    */
-    /*
-    goog.events.listen(gameMap,['mousedown','touchstart'],function(e) {
-        var movement = new lime.animation.MoveTo(e.position.x,e.position.y).setDuration(0.1);
-        pikachu.runAction(movement);
-    });
-    * */
-}
-/*
-// entrypoint
-towerdef.start = function(){
-
-	var director = new lime.Director(document.body,1024,768),
-	    scene = new lime.Scene(),
-
-	    target = new lime.Layer().setPosition(512,384),
-        circle = new lime.Circle().setSize(150,150).setFill(255,150,0),
-        lbl = new lime.Label().setSize(160,50).setFontSize(30).setText('TOUCH ME!'),
-        title = new lime.Label().setSize(800,70).setFontSize(60).setText('Now move me around!')
-            .setOpacity(0).setPosition(512,80).setFontColor('#999').setFill(200,100,0,.1);
-
-
-    //add circle and label to target object
-    target.appendChild(circle);
-    target.appendChild(lbl);
-
-    //add target and title to the scene
-    scene.appendChild(target);
-    scene.appendChild(title);
-
-	director.makeMobileWebAppCapable();
-
-    //add some interaction
-    goog.events.listen(target,['mousedown','touchstart'],function(e){
-
-        //animate
-        target.runAction(new lime.animation.Spawn(
-            new lime.animation.FadeTo(.5).setDuration(.2),
-            new lime.animation.ScaleTo(1.5).setDuration(.8)
-        ));
-
-        title.runAction(new lime.animation.FadeTo(1));
-
-        //let target follow the mouse/finger
-        e.startDrag();
-
-        //listen for end event
-        e.swallow(['mouseup','touchend'],function(){
-            target.runAction(new lime.animation.Spawn(
-                new lime.animation.FadeTo(1),
-                new lime.animation.ScaleTo(1)
-            ));
-
-            title.runAction(new lime.animation.FadeTo(0));
-        });
-
-
-    });
-
-	// set current scene active
-	director.replaceScene(scene);
-
-}
-*/
-
-/*
-///Section: building functionality. Add "addBuildings" into main function.
-
-var drop_targets = [];
-
-towerdef.addBuildings = function (layer, posX, posY) 
-///Add all building drag-drop functionality to game
-/// pass in the layer to add the buildings to, the X and Y position of the building spawn point
-{
-    towerdef.buildDropMap(layer);
-
-    //var dragLocation = new lime.Sprite().setSize(20,20).setFill('#000').setPosition(posX,posY);
-    //layer.appendChild(dragLocation);
-
-    var buildButton = towerdef.addBuildingButton (layer, posX, posY);
-
-
-}
-
-towerdef.addBuildingButton = function(layer, posX, posY) {
-    var buildButton = new lime.Label("Add Building").setPosition(posX, posY);
-    buildButton.setFill('#f00');
-    buildButton.setPadding(10,10,10,10);
-    layer.appendChild(buildButton);
-    
-    goog.events.listen(buildButton, ['mouseup','touchend'], function(e) {
-        var water = towerdef.makeDraggable().setFill('water_building.png').setPosition(posX - 70, posY);
-        var fire = towerdef.makeDraggable().setFill('fire_building.png').setPosition(posX - 100, posY);
-        var grass = towerdef.makeDraggable().setFill('grass_building.png').setPosition(posX - 130, posY);
-        layer.appendChild(water);
-        layer.appendChild(fire);
-        layer.appendChild(grass);
-    });
-	
-	return buildButton;
 }
 
 
-
-towerdef.buildDropMap = function (layer) {
-//set locations of each building foundation below:
-  var location = [
-	[600, 40],
-	[600, 220],
-	[600, 455]
-	];
-
-  // create foundations at each location
-  for (var i=0; i<location.length; i++) {
-	drop_targets.push(towerdef.makeDroppable().setPosition(location[i][0], location[i][1]));
-  }
-  
-  //add each foundation to map
-  for (var i=0; i<drop_targets.length; i++) {
-	layer.appendChild(drop_targets[i]);
-  }
-}
-
-towerdef.makeDraggable = function() {
-  var sprite = new lime.Sprite().setSize(20,20).setFill('#000'); //TODO: add sprite here
-  goog.events.listen(sprite, 'mousedown', function(e){
-    var drag = e.startDrag(false, null, sprite); // snaptocenter, bounds, target
-    
-    // Add drop targets.
-	for (var i = 0;i<drop_targets.length;i++) {
-		drag.addDropTarget(drop_targets[i]);
-	}
-    
-    e.event.stopPropagation();  // Avoid dragging multiple items together
-    
-    // Drop into target and animate
-    goog.events.listen(drag, lime.events.Drag.Event.DROP, function(e){
-      console.log('item was dropped');
-      var dropTarget = e.activeDropTarget;
-    });
-    
-    // Move back if not dropped on target.
-    var lastPosition = sprite.getPosition();
-    goog.events.listen(drag, lime.events.Drag.Event.CANCEL, function(){
-      sprite.runAction(new lime.animation.MoveTo(lastPosition).setDuration(.5));
-    });
-    
-    
-  });
-  return sprite;
-}
-
-towerdef.makeDroppable = function() {
-  //var sprite = new lime.Label().setText('droppable').setSize(150, 150).setFill('#00f');
-  var sprite = new lime.Sprite().setSize(20,20).setFill('foundation.png');
-  sprite.showDropHighlight = function(){
-    this.runAction(new lime.animation.FadeTo(.6).setDuration(.3));
-  };
-  sprite.hideDropHighlight = function(){
-    this.runAction(new lime.animation.FadeTo(1).setDuration(.1));
-  };
-  
-  return sprite; 
-}
-
-/// Section: buy pokemon
-
-towerdef.addPokemonButton = function (layer, posX, posY, player, rGym) {
-	var buildButton2 = new lime.Label("Buy Pokemon").setPosition(posX, posY);
-	buildButton2.setFill('#f00');
-	buildButton2.setPadding(10,10,10,10);
-	layer.appendChild(buildButton2);
-	
-	goog.events.listen(buildButton2, ['mouseup','touchend'], function(e) {
-        var charmander = new lime.Sprite().setFill('charmander.png').setPosition(posX - 70, posY);
-        var bulbasaur = new lime.Sprite().setFill('bulbasaur.png').setPosition(posX - 100, posY);
-		var squirtle = new lime.Sprite().setFill('squirtle.png').setPosition(posX - 130, posY);
-		layer.appendChild(charmander);
-		layer.appendChild(bulbasaur_icon);
-		layer.appendChild(squirtle);
-		
-		goog.events.listen(charmander,  ['mouseup','touchend'], function(e) {
-			console.log("adding charmander");
-			towerdef.add_pokemon(new towerdef.pokemon(100,10,"fire",lPlayer,'charmander.png'), player, layer, rGym);
-			});
-			
-		goog.events.listen(bulbasaur_icon,  ['mouseup','touchend'], function(e) {
-			console.log("adding bulbasaur_icon");
-			towerdef.add_pokemon(new towerdef.pokemon(100,10,"grass",lPlayer,'bulbasaur.png'), player, layer, rGym);
-			});
-		
-		goog.events.listen(squirtle,  ['mouseup','touchend'], function(e) {
-			console.log("adding squirtle");
-			towerdef.add_pokemon(new towerdef.pokemon(100,10,"water",lPlayer,'squirtle.png'), player, layer, rGym);
-			});
-		
-	});
-	return buildButton2;
-}
-
-towerdef.add_pokemon = function(mypk, player, layer, rGym) {
-	player.pokemon.push(mypk);
-	layer.appendChild(mypk.sprite);
-	mypk.sprite.runAction(new lime.animation.MoveTo(rGym.position_.x+towerdef.getRandomNumber(40)-20,rGym.position_.y+50+towerdef.getRandomNumber(40)));
-} 
-*/
 
 //this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode
 goog.exportSymbol('towerdef.start', towerdef.start);
