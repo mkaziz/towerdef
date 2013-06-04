@@ -22,7 +22,7 @@ goog.require('goog.events.EventTarget');
 towerdef.lPlayer = null;
 towerdef.rPlayer = null;
 towerdef.roundRunTime = 5000; //milliseconds
-//towerdef.timer = new goog.Timer(1);
+towerdef.director = null;
 
 towerdef.getRandomNumber = function (num) {
     return Math.floor((Math.random()*num)-1)
@@ -162,15 +162,15 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 	this.player = player;
 	this.sprite = new lime.Sprite().setFill(sprite_name).setAnchorPoint(0.5, 0.5).setSize(20,20);
 	this.level = 1;
-	this.attack_radius = 1000;
+	this.attack_radius = 700;
 	this.attack_interval = 500; //milliseconds
 	this.intervalID;
 	
 	this.isInRange = function(pokemon) {
-		//if (towerdef.distance(pokemon.sprite, this.sprite) < this.attack_radius) {
+		if (towerdef.distance(pokemon.sprite, this.sprite) < this.attack_radius) {
 			return true;
-		//}
-		//return false;
+		}
+		return false;
 	}
 	
 	this.getColor = function () {
@@ -195,8 +195,6 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 	}
 
 }
-
-
 
 towerdef.addHoverListener = function() {
     /**
@@ -429,6 +427,27 @@ towerdef.addBuildingsToConsole = function(gameScene, consoleLayer, pokemonLayer,
 	
 }
 
+towerdef.placeBuildings = function (gameScene, gameLayer) {
+	console.log("Placing Buildings");
+	
+	var  placeBuildingsScene = new lime.Scene();
+    towerdef.director.pushScene(gameScene);
+	towerdef.director.pushScene(placeBuildingsScene);
+	
+	var background = new lime.Sprite().setSize(900,506).setFill("background.png").setPosition(0,0).setAnchorPoint(0,0);
+	var doneButton = new lime.GlossyButton("Done!");
+    doneButton.setPosition(700, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
+	placeBuildingsScene.appendChild(background);
+	placeBuildingsScene.appendChild(doneButton);
+	
+	goog.events.listen(doneButton, ['mousedown','touchstart'], function(e) {
+		console.log("Pop!");
+		towerdef.director.popScene();
+		e.event.stopPropagation();
+    });
+	
+}
+
 towerdef.console = function (gameScene, gameLayer) {
     
     var consoleLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
@@ -483,13 +502,23 @@ towerdef.console = function (gameScene, gameLayer) {
     
     var playButton = new lime.GlossyButton("Play Round");
     playButton.setPosition(450, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
+	
+	var placeBuildingsButton = new lime.GlossyButton("Place Buildings");
+	placeBuildingsButton.setPosition(700, 450).setSize(150,40).setFontSize(18).setColor('#00C');
     
     consoleLayer.appendChild(playButton);
+	consoleLayer.appendChild(placeBuildingsButton);
     towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
     
     goog.events.listen(playButton, ['mousedown','touchstart'], function(e) {
         gameLayer.removeChild(consoleLayer);
         towerdef.playRound(gameScene, gameLayer);
+    });
+	
+	goog.events.listen(placeBuildingsButton, ['mousedown','touchstart'], function(e) {
+        //director.pushScene(consoleLayer);
+		towerdef.placeBuildings(gameScene, gameLayer);
+        //towerdef.playRound(gameScene, gameLayer);
     });
     
     goog.events.listen(charmander_icon, ['mousedown','touchstart'], function(e) {
@@ -576,7 +605,8 @@ towerdef.playRound = function (gameScene, gameLayer) {
 }
 
 towerdef.start = function(){          
-    var director = new lime.Director(document.body,900,506);     
+    var director = new lime.Director(document.body,900,506);   
+	towerdef.director = director;
     director.makeMobileWebAppCapable();     
     director.setDisplayFPS(true);          
     
