@@ -152,7 +152,6 @@ towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
 	
 }
 
-
 towerdef.buildingCost = 50;
 towerdef.building = function (name, health, attack, type, player, sprite_name)  {
 	this.name = name;
@@ -427,21 +426,58 @@ towerdef.addBuildingsToConsole = function(gameScene, consoleLayer, pokemonLayer,
 	
 }
 
-towerdef.placeBuildings = function (gameScene, gameLayer) {
-	console.log("Placing Buildings");
+towerdef.makeDraggable = function (item, layer, foundations) {
+	goog.events.listen(item, 'mousedown', function(e){
+		var drag = e.startDrag(false, null, item); 
+		
+		//var foundations = new lime.Label().setSize(420, 505).setFill('#000').setPosition(0,0).setAnchorPoint(0.0);
+		//layer.appendChild(foundations);
+		
+		//drag.addDropTarget(foundations);
+		e.event.stopPropagation(); 
+		
+		 var lastPosition = item.getPosition();
+		goog.events.listen(drag, lime.events.Drag.Event.CANCEL, function(){
+			item.runAction(new lime.animation.MoveTo(lastPosition).setDuration(.5));
+		});
 	
+	});
+}
+
+towerdef.placeBuildings = function (player, gameScene, gameLayer) {
 	var  placeBuildingsScene = new lime.Scene();
     towerdef.director.pushScene(gameScene);
 	towerdef.director.pushScene(placeBuildingsScene);
 	
+	var bLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
+	placeBuildingsScene.appendChild(bLayer);
+	
 	var background = new lime.Sprite().setSize(900,506).setFill("background.png").setPosition(0,0).setAnchorPoint(0,0);
 	var doneButton = new lime.GlossyButton("Done!");
-    doneButton.setPosition(700, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
-	placeBuildingsScene.appendChild(background);
-	placeBuildingsScene.appendChild(doneButton);
+	doneButton.setPosition(700, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
+	
+	//TODO: add lGym
+	//var foundations = new lime.Label().setSize(420, 505).setFill('#000').setPosition(0,0).setAnchorPoint(0.0);//.setText('').setFill('#F00');
+	
+	bLayer.appendChild(background);
+	//bLayer.appendChild(foundations);
+	bLayer.appendChild(doneButton);
+	
+
+	var initX = 600;
+	var initY = 200;
+	var interval = 40;
+	
+	var c = new lime.RoundedRect().setFill('#0FF').setPosition(400, 400).setSize(50, 50);
+	bLayer.appendChild(c);
+	
+	//populate console with buildings to place
+	for (i = 0;  i<player.buildings.length; i++) {
+		bLayer.appendChild(player.buildings[i].sprite.setPosition(initX, initY + i * interval));
+		towerdef.makeDraggable(player.buildings[i].sprite, bLayer);
+	}
 	
 	goog.events.listen(doneButton, ['mousedown','touchstart'], function(e) {
-		console.log("Pop!");
 		towerdef.director.popScene();
 		e.event.stopPropagation();
     });
@@ -516,9 +552,7 @@ towerdef.console = function (gameScene, gameLayer) {
     });
 	
 	goog.events.listen(placeBuildingsButton, ['mousedown','touchstart'], function(e) {
-        //director.pushScene(consoleLayer);
-		towerdef.placeBuildings(gameScene, gameLayer);
-        //towerdef.playRound(gameScene, gameLayer);
+		towerdef.placeBuildings(towerdef.lPlayer, gameScene, gameLayer);
     });
     
     goog.events.listen(charmander_icon, ['mousedown','touchstart'], function(e) {

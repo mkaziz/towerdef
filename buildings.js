@@ -1,6 +1,6 @@
 
 
-/*
+
 ///Section: building functionality. Add "addBuildings" into main function.
 
 var drop_targets = [];
@@ -140,4 +140,3 @@ towerdef.add_pokemon = function(mypk, player, layer, rGym) {
 	layer.appendChild(mypk.sprite);
 	mypk.sprite.runAction(new lime.animation.MoveTo(rGym.position_.x+towerdef.getRandomNumber(40)-20,rGym.position_.y+50+towerdef.getRandomNumber(40)));
 } 
-*/
