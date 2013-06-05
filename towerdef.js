@@ -372,10 +372,14 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
 	
 	//add building sprites to HUD
 	for (i=0; i < towerdef.lPlayer.buildings.length; i++) {
-		var building = towerdef.lPlayer.buildings[i];
-		building.sprite.setPosition(initX + i * 40, 200);
-		building.sprite.runAction(new lime.animation.ScaleTo(1.5),0.5);
-		buildingsLayer.appendChild(building.sprite);
+		/*var s = towerdef.lPlayer.buildings[i].sprite;
+		var fill = s.getFill();
+		var building = new lime.Sprite();
+		building.setFill('#F00');*/
+		var building = towerdef.lPlayer.buildings[i].sprite;
+		building.setPosition(initX + i * 40, 200);
+		building.runAction(new lime.animation.ScaleTo(1.5),0.5);
+		buildingsLayer.appendChild(building);
 	}
     
     var moneyLabel = new lime.Label().setPosition(160,100).setFontSize(22).setText(towerdef.lPlayer.money.toString());
@@ -416,6 +420,7 @@ towerdef.addBuildingsToConsole = function(gameScene, consoleLayer, pokemonLayer,
 			buyBuildings(function () {
                 towerdef.lPlayer.buildings.push(b);
             }, name);
+			e.event.stopPropagation(); 
 		});
 	}
 
@@ -430,10 +435,10 @@ towerdef.makeDraggable = function (item, layer, foundations) {
 	goog.events.listen(item, 'mousedown', function(e){
 		var drag = e.startDrag(false, null, item); 
 		
-		//var foundations = new lime.Label().setSize(420, 505).setFill('#000').setPosition(0,0).setAnchorPoint(0.0);
-		//layer.appendChild(foundations);
+		for (i = 0; i < foundations.length; i++) {
+			drag.addDropTarget(foundations[i]);
+		}
 		
-		//drag.addDropTarget(foundations);
 		e.event.stopPropagation(); 
 		
 		 var lastPosition = item.getPosition();
@@ -442,6 +447,15 @@ towerdef.makeDraggable = function (item, layer, foundations) {
 		});
 	
 	});
+}
+
+towerdef.makeDroppable = function(sprite) {
+  sprite.showDropHighlight = function(){
+    this.runAction(new lime.animation.FadeTo(.6).setDuration(.3));
+  };
+  sprite.hideDropHighlight = function(){
+    this.runAction(new lime.animation.FadeTo(1).setDuration(.1));
+  };
 }
 
 towerdef.placeBuildings = function (player, gameScene, gameLayer) {
@@ -457,24 +471,48 @@ towerdef.placeBuildings = function (player, gameScene, gameLayer) {
 	doneButton.setPosition(700, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
 	
 	//TODO: add lGym
-	//var foundations = new lime.Label().setSize(420, 505).setFill('#000').setPosition(0,0).setAnchorPoint(0.0);//.setText('').setFill('#F00');
+	//var foundations = new lime.RoundedRect().setSize(420, 505).setFill('#0F0').setPosition(0,0).setAnchorPoint(0,0);//.setText('Buildings');//.setFintSize(26);
+	
+	var all_foundations = [];
+	
+	var initX = 30;
+	var initY = 30;
+	var f_across = 9;
+	var f_down = 10;
+	var x_gap = 40;
+	var y_gap = 50;
+
 	
 	bLayer.appendChild(background);
-	//bLayer.appendChild(foundations);
 	bLayer.appendChild(doneButton);
 	
-
+	for (i = 0; i < f_down; i++) {
+		var myY = initY + y_gap * i;
+		for (j = 0; j < f_across; j++ ) {
+			var myX = initX + x_gap * j;
+			if ( myX < 150 && (myY < 300 && myY > 200)) {} //leave space for Gym
+			else { 
+				var temp = new lime.RoundedRect().setSize(30, 30).setFill(255, 200, 200, 0.5).setPosition(myX, myY);
+				all_foundations.push(temp)
+				towerdef.makeDroppable(temp);
+				bLayer.appendChild(temp);
+			}
+		}
+	}
+	
 	var initX = 600;
 	var initY = 200;
 	var interval = 40;
 	
-	var c = new lime.RoundedRect().setFill('#0FF').setPosition(400, 400).setSize(50, 50);
+	var c = new lime.RoundedRect().setFill(255, 255, 255, 0.5).setPosition(550, 20).setSize(300, 400).setAnchorPoint(0,0);
+	var cl = new lime.Sprite().setPosition(700, 80).setSize(150, 35).setFill("buildings_header.png");//setFontSize(26);
 	bLayer.appendChild(c);
+	bLayer.appendChild(cl);
 	
 	//populate console with buildings to place
 	for (i = 0;  i<player.buildings.length; i++) {
 		bLayer.appendChild(player.buildings[i].sprite.setPosition(initX, initY + i * interval));
-		towerdef.makeDraggable(player.buildings[i].sprite, bLayer);
+		towerdef.makeDraggable(player.buildings[i].sprite, bLayer, all_foundations);
 	}
 	
 	goog.events.listen(doneButton, ['mousedown','touchstart'], function(e) {
@@ -577,7 +615,9 @@ towerdef.console = function (gameScene, gameLayer) {
 
 towerdef.addBuildingsToRound = function(roundLayer, player) {
 	for (i=0; i < player.buildings.length; i++) {
-		roundLayer.appendChild(player.buildings[i].sprite);
+		if (player.buildings[i].sprite.getPosition().x < 500) {
+			roundLayer.appendChild(player.buildings[i].sprite);
+		}
 	}
 	
 	//TODO: chose building positions
