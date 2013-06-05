@@ -80,6 +80,26 @@ towerdef.distance = function(sprite1, sprite2) {
 	return Math.sqrt ( xd * xd + yd * yd);
 }
 
+towerdef.getGymDamage = function(pokemon) {
+	// TODO: level up?
+	return 5;
+}
+
+
+towerdef.checkGymCollision = function(gym, pokemon, player) {
+	if(goog.math.Box.intersects(gym.getBoundingBox(), pokemon.sprite.getBoundingBox()) && !pokemon.collided){
+		//colliding with Gym
+		if (player.health > 0) {
+			player.health -= towerdef.getGymDamage(pokemon);
+			pokemon.collided = true;
+			console.log(player.gym.location + " gym health: " + player.health);
+		}
+		else 
+		{
+			console.log ("You lose!");
+		}
+   	}
+}
 towerdef.player = function(gym, opponent) {
     
     this.pokemon = [];
@@ -98,6 +118,22 @@ towerdef.player = function(gym, opponent) {
 			}
 		}
 	}
+	
+	this.pintervalID;
+	this.handleGymCollisions = function () {
+		var myGym = this.gym;
+		var player = this;
+		for (i = 0; i<this.opponent.pokemon.length; i++) {
+			var myPokemon = this.opponent.pokemon[i];
+    		this.pintervalID = setInterval(function () { towerdef.checkGymCollision(myGym, myPokemon, player); }, 250);
+		}
+	}
+	
+	this.stopCheckingGymCollisions = function () {
+		clearInterval(this.pintervalID);	
+	}
+	
+
         
 }
 
@@ -109,11 +145,13 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
     this.level = 1;
     this.sprite = new lime.Sprite().setSize(19,19).setFill(spriteUrl).setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5);
     this.route = Math.floor((Math.random()*3)+1);
+    this.collided = false;
     
     this.refreshRoutes = function() {this.route = Math.floor((Math.random()*100)+1); };
     this.resetRoundPosition = function () {
         this.sprite.setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,
         player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5)
+        this.collided = false;
     };
 	
 	this.checkFainted = function () {
@@ -133,8 +171,7 @@ towerdef.shoot = function(pokemon, building, buildingsLayer) {
 		//TODO: move to position where pokemon will be
 		var shoot = new lime.animation.MoveTo(pokemon.sprite.getPosition().x, pokemon.sprite.getPosition().y);
 		goog.events.listen(shoot,"stop",function(){
-			towerdef.finishShoot(bullet, pokemon, buildingsLayer);
-			building.intervalID = undefined;
+			towerdef.finishShoot(bullet, pokemon, buildingsLayer);	
 		}); 
 		bullet.runAction(shoot, 0.1);
 	}
@@ -248,7 +285,6 @@ towerdef.hoverInHandler = function (item, size) {
     return function(e){
         //animate
         item.runAction(new lime.animation.ScaleTo(size).setDuration(.05));
-        //console.log("hover in");
     };
 
 };
@@ -256,7 +292,6 @@ towerdef.hoverInHandler = function (item, size) {
 towerdef.hoverOutHandler = function (item, size) {
     
     return function() {
-        //console.log("hover out");
         item.runAction(new lime.animation.ScaleTo(size).setDuration(.05));
     }
 };
@@ -623,9 +658,6 @@ towerdef.addBuildingsToRound = function(roundLayer, player) {
 			roundLayer.appendChild(player.buildings[i].sprite);
 		}
 	}
-	
-	//TODO: chose building positions
-
 }
 
 towerdef.addPokemonToRound = function(roundLayer, player, opponent) {
@@ -637,14 +669,14 @@ towerdef.addPokemonToRound = function(roundLayer, player, opponent) {
 
 		// pokemon movng towards opposite gym action
         player.pokemon[i].sprite.runAction(
-			new lime.animation.MoveTo(opponent.gym.position_.x+towerdef.getRandomNumber(40)-20,opponent.gym.position_.y+50+towerdef.getRandomNumber(40)));
+			//new lime.animation.MoveTo(opponent.gym.position_.x+towerdef.getRandomNumber(40)-20,opponent.gym.position_.y+50+towerdef.getRandomNumber(40)));
+			new lime.animation.MoveTo(opponent.gym.position_.x,opponent.gym.position_.y)); //testing collisions
     }
 }
 
 towerdef.stopShooting = function(player) {
 	for (i = 0; i < player.buildings.length; i++) {
 		player.buildings[i].stopShooting();
-		player.buildings[i].intervalID = undefined;
 	}
 }
 
@@ -664,17 +696,22 @@ towerdef.playRound = function (gameScene, gameLayer) {
 	//opponent test pokemon
     towerdef.rPlayer.pokemon.push(new towerdef.pokemon(100,10,"fire",towerdef.rPlayer,"Pikachu_1.png"));
 	
-	towerdef.addBuildingsToRound(roundLayer, towerdef.lPlayer);
+	towerdef.addBuildingsToRound(gameLayer, towerdef.lPlayer);
 
-	towerdef.lPlayer.buildingAttack(roundLayer);
-	towerdef.rPlayer.buildingAttack(roundLayer);
+	towerdef.lPlayer.buildingAttack(gameLayer);
+	towerdef.rPlayer.buildingAttack(gameLayer);
 	
-	towerdef.addPokemonToRound(roundLayer, towerdef.lPlayer, towerdef.rPlayer);
-	towerdef.addPokemonToRound(roundLayer, towerdef.rPlayer, towerdef.lPlayer);
+	towerdef.addPokemonToRound(gameLayer, towerdef.lPlayer, towerdef.rPlayer);
+	towerdef.addPokemonToRound(gameLayer, towerdef.rPlayer, towerdef.lPlayer);
+	
+	towerdef.lPlayer.handleGymCollisions();
+	towerdef.rPlayer.handleGymCollisions();
     
     lime.scheduleManager.callAfter(function (dt) {
 		towerdef.stopShooting(towerdef.lPlayer);
 		towerdef.stopShooting(towerdef.rPlayer);
+		towerdef.lPlayer.stopCheckingGymCollisions();
+		towerdef.rPlayer.stopCheckingGymCollisions();
         gameLayer.removeChild(roundLayer);
         towerdef.lPlayer.money += 20;
         towerdef.console(gameScene, gameLayer);
