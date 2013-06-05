@@ -23,6 +23,7 @@ towerdef.lPlayer = null;
 towerdef.rPlayer = null;
 towerdef.roundRunTime = 5000; //milliseconds
 towerdef.director = null;
+towerdef.music = false;
 
 towerdef.getRandomNumber = function (num) {
     return Math.floor((Math.random()*num)-1)
@@ -289,6 +290,7 @@ towerdef.gameScene = function (director) {
     var gameScene = new lime.Scene();
     director.replaceScene(gameScene);
     
+	if (towerdef.music) {
     var music = new lime.audio.Audio("sd.ogg");
     music.play();
     
@@ -298,6 +300,7 @@ towerdef.gameScene = function (director) {
             this.play();
         }
     }, music, 7000);
+	}
     
 	
     var gameLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
