@@ -19,266 +19,28 @@ goog.require('lime.animation.ColorTo');
 goog.require('lime.animation.Sequence');
 goog.require('goog.events.EventTarget');
 
+
+// GLOBALS
 towerdef.lPlayer = null;
 towerdef.rPlayer = null;
 towerdef.roundRunTime = 5000; //milliseconds
 towerdef.director = null;
 towerdef.music = false;
-
-towerdef.getRandomNumber = function (num) {
-    return Math.floor((Math.random()*num)-1)
-}
-
-towerdef.strengths = [ 
-	["fire", "grass"], 
-	["grass", "water"], 
-	["water", "fire"]
-	];
-	
-towerdef.getWeakness = function(type) {
-	for (i = 0; i<=towerdef.strengths.length; i++) {
-		var testing = towerdef.strengths[i][1] ;
-		if (testing == type) 
-		{
-			var weakness = towerdef.strengths[i][0]
-			return weakness;
-		}
-	}
-}
-
-towerdef.getStrength = function(type) {
-	for (i = 0; i<towerdef.strengths.length; i++) {
-	var testing = towerdef.strengths[i][0];
-		if (testing == type) 
-		{ 
-		var strength = towerdef.strengths[i][1]; 
-		return strength;
-		}
-	}
-}
-
-towerdef.damageAmount = function(buildingType, pokemonType) {
-	var weakness = towerdef.getWeakness(pokemonType);
-	var strength = towerdef.getStrength(pokemonType);
-	
-	if (buildingType == weakness) { return 15;}
-	else if (buildingType == strength) { return 1;}
-	else {return 5;}
-	
-}
-
-towerdef.distance = function(sprite1, sprite2) {
-	var x1 = sprite1.getPosition().x;
-	var x2 = sprite2.getPosition().x;
-	
-	var y1 = sprite1.getPosition().y;
-	var y2 = sprite2.getPosition().y;
-	
-	var xd = x2 - x1;
-	var yd = y2 - y1;
-	
-	return Math.sqrt ( xd * xd + yd * yd);
-}
-
-towerdef.getGymDamage = function(pokemon) {
-	// TODO: level up?
-	return 5;
-}
-
-towerdef.playerAllCollidedOrDead = function(player) {
-	for (i = 0; i < player.pokemon.length; i++) {
-		if (player.pokemon[i].collided == false) {
-			return false;
-		}
-		if (player.pokemon[i].health <= 0) {
-			return false;
-		}
-	}
-	return true;
-}
-
-towerdef.checkIfPokemonGone = function(lPlayer, rPlayer) {
-	return towerdef.playerAllCollidedOrDead(lPlayer) && towerdef.playerAllCollidedOrDead(rPlayer);
-}	
-
-towerdef.checkGymCollision = function(gym, pokemon, player) {
-	if(goog.math.Box.intersects(gym.getBoundingBox(), pokemon.sprite.getBoundingBox()) && !pokemon.collided){
-		//colliding with Gym
-		if (player.health > 0) {
-			player.health -= towerdef.getGymDamage(pokemon);
-			pokemon.collided = true;
-			pokemon.sprite.runAction(new lime.animation.FadeTo(0.1).setDuration(0.5));
-			console.log(player.gym.location + " gym health: " + player.health);
-		}
-		else 
-		{
-			console.log ("You lose!");
-		}
-   	}
-}
-towerdef.player = function(gym, opponent) {
-    
-    this.pokemon = [];
-    this.buildings = [];
-    this.health = 100;
-    // left or right
-    this.gym = gym;
-    this.money = 100;
-	this.opponent = opponent;
-	
-	this.buildingAttack = function (buildingsLayer) {
-		for (i = 0; i< this.buildings.length; i++) {
-			for (j = 0; j < this.opponent.pokemon.length; j++) {
-				//console.log ("Building " + i, ", " + this.buildings[i].name + " is shooting " + this.opponent.pokemon[j].type + ", pokemon " + j);
-				this.buildings[i].attack(this.opponent.pokemon[j], buildingsLayer);
-			}
-		}
-	}
-	
-	this.pintervalID;
-	this.handleGymCollisions = function () {
-		var myGym = this.gym;
-		var player = this;
-		for (i = 0; i<this.opponent.pokemon.length; i++) {
-			var myPokemon = this.opponent.pokemon[i];
-    		this.pintervalID = setInterval(function () { towerdef.checkGymCollision(myGym, myPokemon, player); }, 250);
-		}
-	}
-	
-
-	
-	this.healthBarSize=50;
-	this.hintervalID;
-	
-	this.stopUpdates = function () {
-		clearInterval(this.pintervalID);
-		clearInterval(this.hintervalID); //todo: update health if a collision is detected	
-	}
-	
-	this.displayHealth = function(healthLayer){
-		var player = this;
-		this.hintervalID = setInterval(function () { towerdef.updateHealth (player, healthLayer);}, 250);
-	}
-	
-        
-}
-
-//TODO: clean all of this up
-towerdef.updateHealth = function(myplayer, healthLayer) {
-		var pos = myplayer.gym.getPosition();
-		
-		var healthBackground = new lime.RoundedRect().setSize(myplayer.healthBarSize, 5).setRadius(2).setFill('#FFF').setPosition(pos.x, pos.y - 50);
-		healthLayer.appendChild(healthBackground);
-		
-		var healthLevel = new lime.RoundedRect().setSize(myplayer.health*(myplayer.healthBarSize/100), 5).setRadius(2).setFill('#F00').setPosition(pos.x, pos.y - 50);
-		healthLayer.appendChild(healthLevel);
-	}
-
-towerdef.displayGymHealth = function(gameLayer) {
-	var healthLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
-	gameLayer.appendChild(healthLayer);
-	
-	towerdef.lPlayer.displayHealth(healthLayer);
-	towerdef.rPlayer.displayHealth(healthLayer);
-}
-
-towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
-    this.health = health;
-    this.attack = attack;
-    this.type = type;
-    this.player = player;
-    this.level = 1;
-    this.sprite = new lime.Sprite().setSize(19,19).setFill(spriteUrl).setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5);
-    this.route = Math.floor((Math.random()*3)+1);
-    this.collided = false;
-    
-    this.refreshRoutes = function() {this.route = Math.floor((Math.random()*100)+1); };
-    this.resetRoundPosition = function () {
-        this.sprite.setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,
-        player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5)
-        this.collided = false;
-    };
-	
-	this.checkFainted = function () {
-		if (this.health <= 0) {
-			return true;
-		}
-		return false;
-	}
-}
-
-towerdef.shoot = function(pokemon, building, buildingsLayer) {
-		var color = building.getColor();
-		
-		console.log("All pokemon done with level: " + towerdef.checkIfPokemonGone(towerdef.lPlayer, towerdef.rPlayer));
-
-		var bullet = new lime.Circle().setSize(5, 5).setFill(building.getColor()).setPosition(building.sprite.getPosition().x, building.sprite.getPosition().y);
-		buildingsLayer.appendChild(bullet);
-		
-		//TODO: move to position where pokemon will be
-		var shoot = new lime.animation.MoveTo(pokemon.sprite.getPosition().x, pokemon.sprite.getPosition().y);
-		goog.events.listen(shoot,"stop",function(){
-			towerdef.finishShoot(bullet, pokemon, buildingsLayer);	
-		}); 
-		bullet.runAction(shoot, 0.1);
-	}
-	
-towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
-	buildingsLayer.removeChild(bullet);
-	if (!pokemon.checkFainted()) {
-		pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
-	}
-	else {
-		if (pokemon.sprite.parent != undefined) {
-			pokemon.sprite.parent.removeChild(pokemon);
-			
-		}
-	}
-	
-}
-
 towerdef.buildingCost = 50;
-towerdef.building = function (name, health, attack, type, player, sprite_name)  {
-	this.name = name;
-	this.health = health;
-	this.attack_power = attack;
-	this.type = type;
-	this.player = player;
-	this.sprite = new lime.Sprite().setFill(sprite_name).setAnchorPoint(0.5, 0.5).setSize(20,20);
-	this.level = 1;
-	this.attack_radius = 700;
-	this.attack_interval = 500; //milliseconds
-	this.intervalID;
-	this.placed = false;
-	
-	this.isInRange = function(pokemon) {
-		if (towerdef.distance(pokemon.sprite, this.sprite) < this.attack_radius) {return true;}
-		return false;
-	}
-	
-	this.getColor = function () {
-		var color;
-		
-		if (this.type == "fire") {color = '#F00';}
-		else if (this.type == "grass") {color = '#360';}
-		else {color = '#00F';}
-	
-		return color;
-	}
-	
-	this.attack = function(pokemon, buildingsLayer) {
-		var building = this;
-		if (this.isInRange(pokemon) && this.intervalID == undefined) {
-			this.intervalID = setInterval(function () {towerdef.shoot(pokemon, building, buildingsLayer);}, this.attack_interval);
-		}
-	}
-	
-	this.stopShooting = function() {
-		clearInterval(this.intervalID);
-	}
 
-}
+towerdef.strengths = {
+    "fire" : "grass",
+    "grass" : "water",
+    "water" : "fire"
+};
 
+towerdef.weaknesses = {
+    "fire" : "water",
+    "grass" : "fire",
+    "water" : "grass"
+};
+
+// HOVER CODE
 towerdef.addHoverListener = function() {
     /**
     Test for correctly dispatching mouseover/mouseout for LimeJS objects
@@ -342,7 +104,246 @@ towerdef.hoverOutHandler = function (item, size) {
         item.runAction(new lime.animation.ScaleTo(size).setDuration(.05));
     }
 };
+
+// GENERIC UTILITY FUNCTIONS
+towerdef.getRandomNumber = function (num) {
+    return Math.floor((Math.random()*num)-1)
+}
+
+towerdef.distance = function(sprite1, sprite2) {
+	var x1 = sprite1.getPosition().x;
+	var x2 = sprite2.getPosition().x;
+	
+	var y1 = sprite1.getPosition().y;
+	var y2 = sprite2.getPosition().y;
+	
+	var xd = x2 - x1;
+	var yd = y2 - y1;
+	
+	return Math.sqrt ( xd * xd + yd * yd);
+}
+
+// POKEMON-RELATED UTILITY FUNCTIONS
+towerdef.getWeakness = function(type) {
+	return towerdef.weaknesses[type];
+}
+
+towerdef.getStrength = function(type) {
+	return towerdef.strengths[type];
+}
+
+towerdef.damageAmount = function(buildingType, pokemonType) {
+	var weakness = towerdef.getWeakness(pokemonType);
+	var strength = towerdef.getStrength(pokemonType);
+	
+	if (buildingType == weakness) { return 15;}
+	else if (buildingType == strength) { return 1;}
+	else {return 5;}
+	
+}
+
+towerdef.getGymDamage = function(pokemon) {
+	// TODO: level up?
+	return 5;
+}
+
+towerdef.playerAllCollidedOrDead = function(player) {
+	for (i = 0; i < player.pokemon.length; i++) {
+		if (player.pokemon[i].collided == false) {
+			return false;
+		}
+		if (player.pokemon[i].health <= 0) {
+			return false;
+		}
+	}
+	return true;
+}
+
+towerdef.checkIfPokemonGone = function() {
+	return towerdef.playerAllCollidedOrDead(towerdef.lPlayer) && towerdef.playerAllCollidedOrDead(towerdef.rPlayer);
+}	
+
+towerdef.checkGymCollision = function(gym, pokemon, player) {
+	if(goog.math.Box.intersects(gym.getBoundingBox(), pokemon.sprite.getBoundingBox()) && !pokemon.collided){
+		//colliding with Gym
+		if (player.health > 0) {
+			player.health -= towerdef.getGymDamage(pokemon);
+			pokemon.collided = true;
+			pokemon.sprite.runAction(new lime.animation.FadeTo(0.1).setDuration(0.5));
+			console.log(player.gym.location + " gym health: " + player.health);
+		}
+		else 
+		{
+			console.log ("You lose!");
+		}
+   	}
+}
+
+// GAME CLASSES
+towerdef.player = function(gym, opponent) {
     
+    this.pokemon = [];
+    this.buildings = [];
+    this.health = 100;
+    // left or right
+    this.gym = gym;
+    this.money = 100;
+	this.opponent = opponent;
+	
+	this.buildingAttack = function (buildingsLayer) {
+		for (i = 0; i< this.buildings.length; i++) {
+			for (j = 0; j < this.opponent.pokemon.length; j++) {
+				//console.log ("Building " + i, ", " + this.buildings[i].name + " is shooting " + this.opponent.pokemon[j].type + ", pokemon " + j);
+				this.buildings[i].attack(this.opponent.pokemon[j], buildingsLayer);
+			}
+		}
+	}
+	
+	this.pintervalID;
+	this.handleGymCollisions = function () {
+		var myGym = this.gym;
+		var player = this;
+		for (i = 0; i<this.opponent.pokemon.length; i++) {
+			var myPokemon = this.opponent.pokemon[i];
+    		this.pintervalID = setInterval(function () { towerdef.checkGymCollision(myGym, myPokemon, player); }, 250);
+		}
+	}
+	
+
+	
+	this.healthBarSize=50;
+	this.hintervalID;
+	
+	this.stopUpdates = function () {
+		clearInterval(this.pintervalID);
+		clearInterval(this.hintervalID); //todo: update health if a collision is detected	
+	}
+	
+	this.displayHealth = function(healthLayer){
+		var player = this;
+		this.hintervalID = setInterval(function () { towerdef.updateHealth (player, healthLayer);}, 250);
+	}
+	
+        
+}
+
+towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
+    this.health = health;
+    this.attack = attack;
+    this.type = type;
+    this.player = player;
+    this.level = 1;
+    this.sprite = new lime.Sprite().setSize(19,19).setFill(spriteUrl).setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5);
+    this.route = Math.floor((Math.random()*3)+1);
+    this.collided = false;
+    
+    this.refreshRoutes = function() {this.route = Math.floor((Math.random()*100)+1); };
+    this.resetRoundPosition = function () {
+        this.sprite.setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,
+        player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5)
+        this.collided = false;
+    };
+	
+	this.checkFainted = function () {
+		if (this.health <= 0) {
+			return true;
+		}
+		return false;
+	}
+}
+
+//TODO: clean all of this up
+towerdef.updateHealth = function(myplayer, healthLayer) {
+		var pos = myplayer.gym.getPosition();
+		
+		var healthBackground = new lime.RoundedRect().setSize(myplayer.healthBarSize, 5).setRadius(2).setFill('#FFF').setPosition(pos.x, pos.y - 50);
+		healthLayer.appendChild(healthBackground);
+		
+		var healthLevel = new lime.RoundedRect().setSize(myplayer.health*(myplayer.healthBarSize/100), 5).setRadius(2).setFill('#F00').setPosition(pos.x, pos.y - 50);
+		healthLayer.appendChild(healthLevel);
+	}
+
+towerdef.displayGymHealth = function(gameLayer) {
+	var healthLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
+	gameLayer.appendChild(healthLayer);
+	
+	towerdef.lPlayer.displayHealth(healthLayer);
+	towerdef.rPlayer.displayHealth(healthLayer);
+}
+
+towerdef.shoot = function(pokemon, building, buildingsLayer) {
+		var color = building.getColor();
+		
+		console.log("All pokemon done with level: " + towerdef.checkIfPokemonGone(towerdef.lPlayer, towerdef.rPlayer));
+
+		var bullet = new lime.Circle().setSize(5, 5).setFill(building.getColor()).setPosition(building.sprite.getPosition().x, building.sprite.getPosition().y);
+		buildingsLayer.appendChild(bullet);
+		
+		//TODO: move to position where pokemon will be
+		var shoot = new lime.animation.MoveTo(pokemon.sprite.getPosition().x, pokemon.sprite.getPosition().y);
+		goog.events.listen(shoot,"stop",function(){
+			towerdef.finishShoot(bullet, pokemon, buildingsLayer);	
+		}); 
+		bullet.runAction(shoot, 0.1);
+	}
+	
+towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
+	buildingsLayer.removeChild(bullet);
+	if (!pokemon.checkFainted()) {
+		pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
+	}
+	else {
+		if (pokemon.sprite.parent != undefined) {
+			pokemon.sprite.parent.removeChild(pokemon);
+			
+		}
+	}
+	
+}
+
+towerdef.building = function (name, health, attack, type, player, sprite_name)  {
+	this.name = name;
+	this.health = health;
+	this.attack_power = attack;
+	this.type = type;
+	this.player = player;
+	this.sprite = new lime.Sprite().setFill(sprite_name).setAnchorPoint(0.5, 0.5).setSize(20,20);
+	this.level = 1;
+	this.attack_radius = 700;
+	this.attack_interval = 500; //milliseconds
+	this.intervalID;
+	this.placed = false;
+	
+	this.isInRange = function(pokemon) {
+		if (towerdef.distance(pokemon.sprite, this.sprite) < this.attack_radius) {return true;}
+		return false;
+	}
+	
+	this.getColor = function () {
+		var color;
+		
+		if (this.type == "fire") {color = '#F00';}
+		else if (this.type == "grass") {color = '#360';}
+		else {color = '#00F';}
+	
+		return color;
+	}
+	
+	this.attack = function(pokemon, buildingsLayer) {
+		var building = this;
+		if (this.isInRange(pokemon) && this.intervalID == undefined) {
+			this.intervalID = setInterval(function () {towerdef.shoot(pokemon, building, buildingsLayer);}, this.attack_interval);
+		}
+	}
+	
+	this.stopShooting = function() {
+		clearInterval(this.intervalID);
+	}
+
+}
+
+
+// SCENES
 towerdef.menuScene = function (director) {
     var menuScene = new lime.Scene();
     director.replaceScene(menuScene);
@@ -408,6 +409,8 @@ towerdef.gameScene = function (director) {
 
 }
 
+
+// CONSOLE
 towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, buildingsLayer) {
     
     var initX = 200;
@@ -699,6 +702,8 @@ towerdef.console = function (gameScene, gameLayer) {
     
 }
 
+
+// ROUND
 towerdef.addBuildingsToRound = function(roundLayer, player) {
 	for (i=0; i < player.buildings.length; i++) {
 		if (player.buildings[i].sprite.getPosition().x < 500) {
@@ -761,11 +766,11 @@ towerdef.playRound = function (gameScene, gameLayer) {
     var handleConsoleSwitch = function (dt) {
         
         if (towerdef.checkIfPokemonGone(towerdef.lPlayer, towerdef.rPlayer)) {
+            towerdef.stopShooting(towerdef.lPlayer);
+            towerdef.stopShooting(towerdef.rPlayer);            
+            towerdef.lPlayer.stopUpdates();
+            towerdef.rPlayer.stopUpdates();
             lime.scheduleManager.callAfter(function (dt) {
-                towerdef.stopShooting(towerdef.lPlayer);
-                towerdef.stopShooting(towerdef.rPlayer);
-                towerdef.lPlayer.stopUpdates();
-                towerdef.rPlayer.stopUpdates();
                 gameLayer.removeChild(roundLayer);
                 towerdef.lPlayer.money += 20;
                 towerdef.console(gameScene, gameLayer);
@@ -774,9 +779,11 @@ towerdef.playRound = function (gameScene, gameLayer) {
         }
     };
     
-    lime.scheduleManager.scheduleWithDelay(handleConsoleSwitch, gameScene, 1000);
+    lime.scheduleManager.scheduleWithDelay(handleConsoleSwitch, gameScene, 500);
 }
 
+
+// INITIAL FUNCTION
 towerdef.start = function(){          
     var director = new lime.Director(document.body,900,506);   
 	towerdef.director = director;
