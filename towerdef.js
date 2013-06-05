@@ -129,12 +129,41 @@ towerdef.player = function(gym, opponent) {
 		}
 	}
 	
-	this.stopCheckingGymCollisions = function () {
-		clearInterval(this.pintervalID);	
+
+	
+	this.healthBarSize=50;
+	this.hintervalID;
+	
+	this.stopUpdates = function () {
+		clearInterval(this.pintervalID);
+		clearInterval(this.hintervalID); //todo: update health if a collision is detected	
 	}
 	
-
+	this.displayHealth = function(healthLayer){
+		var player = this;
+		this.hintervalID = setInterval(function () { towerdef.updateHealth (player, healthLayer);}, 250);
+	}
+	
         
+}
+
+//TODO: clean all of this up
+towerdef.updateHealth = function(myplayer, healthLayer) {
+		var pos = myplayer.gym.getPosition();
+		
+		var healthBackground = new lime.RoundedRect().setSize(myplayer.healthBarSize, 5).setRadius(2).setFill('#FFF').setPosition(pos.x, pos.y - 50);
+		healthLayer.appendChild(healthBackground);
+		
+		var healthLevel = new lime.RoundedRect().setSize(myplayer.health*(myplayer.healthBarSize/100), 5).setRadius(2).setFill('#F00').setPosition(pos.x, pos.y - 50);
+		healthLayer.appendChild(healthLevel);
+	}
+
+towerdef.displayGymHealth = function(gameLayer) {
+	var healthLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
+	gameLayer.appendChild(healthLayer);
+	
+	towerdef.lPlayer.displayHealth(healthLayer);
+	towerdef.rPlayer.displayHealth(healthLayer);
 }
 
 towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
@@ -706,12 +735,14 @@ towerdef.playRound = function (gameScene, gameLayer) {
 	
 	towerdef.lPlayer.handleGymCollisions();
 	towerdef.rPlayer.handleGymCollisions();
+	
+	towerdef.displayGymHealth(gameLayer); //for both gyms
     
     lime.scheduleManager.callAfter(function (dt) {
 		towerdef.stopShooting(towerdef.lPlayer);
 		towerdef.stopShooting(towerdef.rPlayer);
-		towerdef.lPlayer.stopCheckingGymCollisions();
-		towerdef.rPlayer.stopCheckingGymCollisions();
+		towerdef.lPlayer.stopUpdates();
+		towerdef.rPlayer.stopUpdates();
         gameLayer.removeChild(roundLayer);
         towerdef.lPlayer.money += 20;
         towerdef.console(gameScene, gameLayer);
