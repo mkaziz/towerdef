@@ -85,6 +85,21 @@ towerdef.getGymDamage = function(pokemon) {
 	return 5;
 }
 
+towerdef.playerAllCollidedOrDead = function(player) {
+	for (i = 0; i < player.pokemon.length; i++) {
+		if (player.pokemon[i].collided == false) {
+			return false;
+		}
+		if (player.pokemon[i].health <= 0) {
+			return false;
+		}
+	}
+	return true;
+}
+
+towerdef.checkIfPokemonGone = function(lPlayer, rPlayer) {
+	return towerdef.playerAllCollidedOrDead(lPlayer) && towerdef.playerAllCollidedOrDead(rPlayer);
+}	
 
 towerdef.checkGymCollision = function(gym, pokemon, player) {
 	if(goog.math.Box.intersects(gym.getBoundingBox(), pokemon.sprite.getBoundingBox()) && !pokemon.collided){
@@ -92,6 +107,7 @@ towerdef.checkGymCollision = function(gym, pokemon, player) {
 		if (player.health > 0) {
 			player.health -= towerdef.getGymDamage(pokemon);
 			pokemon.collided = true;
+			pokemon.sprite.runAction(new lime.animation.FadeTo(0).setDuration(0.5));
 			console.log(player.gym.location + " gym health: " + player.health);
 		}
 		else 
@@ -193,6 +209,8 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 
 towerdef.shoot = function(pokemon, building, buildingsLayer) {
 		var color = building.getColor();
+		
+		console.log("All pokemon done with level: " + towerdef.checkIfPokemonGone(towerdef.lPlayer, towerdef.rPlayer));
 
 		var bullet = new lime.Circle().setSize(5, 5).setFill(building.getColor()).setPosition(building.sprite.getPosition().x, building.sprite.getPosition().y);
 		buildingsLayer.appendChild(bullet);
