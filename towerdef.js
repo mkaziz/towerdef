@@ -125,28 +125,28 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 
 towerdef.shoot = function(pokemon, building, buildingsLayer) {
 		var color = building.getColor();
-		//console.log("Pew pew! Shooting " + color + "bullets."); //: name: " + building.name + "buildingLayer" + buildingsLayer);
+
 		var bullet = new lime.Circle().setSize(5, 5).setFill(building.getColor()).setPosition(building.sprite.getPosition().x, building.sprite.getPosition().y);
 		buildingsLayer.appendChild(bullet);
 		
 		//TODO: move to position where pokemon will be
 		var shoot = new lime.animation.MoveTo(pokemon.sprite.getPosition().x, pokemon.sprite.getPosition().y);
-		goog.events.listen(shoot,"stop",function(){towerdef.finishShoot(bullet, pokemon, buildingsLayer); }); 
+		goog.events.listen(shoot,"stop",function(){
+			towerdef.finishShoot(bullet, pokemon, buildingsLayer);
+			building.intervalID = undefined;
+		}); 
 		bullet.runAction(shoot, 0.1);
-		//setTimeout(function () {finishShoot(bullet, pokemon, buildingsLayer);}, 0.12);
 	}
 	
 towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
 	buildingsLayer.removeChild(bullet);
-	//TODO: decrease that pokemon health according to types
 	if (!pokemon.checkFainted()) {
-	//pokemon.health -= 5;
-	pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
-	//console.log(pokemon.type + " pokemon at level " + pokemon.level + " now has " + pokemon.health +  " health. ");
+		pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
 	}
 	else {
 		if (pokemon.sprite.parent != undefined) {
 			pokemon.sprite.parent.removeChild(pokemon);
+			
 		}
 	}
 	
@@ -164,11 +164,10 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 	this.attack_radius = 700;
 	this.attack_interval = 500; //milliseconds
 	this.intervalID;
+	this.placed = false;
 	
 	this.isInRange = function(pokemon) {
-		if (towerdef.distance(pokemon.sprite, this.sprite) < this.attack_radius) {
-			return true;
-		}
+		if (towerdef.distance(pokemon.sprite, this.sprite) < this.attack_radius) {return true;}
 		return false;
 	}
 	
@@ -451,16 +450,16 @@ towerdef.makeDraggable = function (item, layer, foundations) {
 
 towerdef.makeDroppable = function(sprite) {
   sprite.showDropHighlight = function(){
-    this.runAction(new lime.animation.FadeTo(.6).setDuration(.3));
+    this.runAction(new lime.animation.ColorTo('#FFF').setDuration(.3));
   };
   sprite.hideDropHighlight = function(){
-    this.runAction(new lime.animation.FadeTo(1).setDuration(.1));
+    this.runAction(new lime.animation.ColorTo(255, 200, 200, 0.5).setDuration(.1));
   };
 }
 
 towerdef.placeBuildings = function (player, gameScene, gameLayer) {
 	var  placeBuildingsScene = new lime.Scene();
-    towerdef.director.pushScene(gameScene);
+    //towerdef.director.pushScene(gameScene);
 	towerdef.director.pushScene(placeBuildingsScene);
 	
 	var bLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
@@ -471,6 +470,7 @@ towerdef.placeBuildings = function (player, gameScene, gameLayer) {
 	doneButton.setPosition(700, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
 	
 	//TODO: add lGym
+	 var gym = new lime.Sprite().setSize(96,80).setFill("gym.png").setPosition(50,250).setAnchorPoint(0.5,0.5);
 	//var foundations = new lime.RoundedRect().setSize(420, 505).setFill('#0F0').setPosition(0,0).setAnchorPoint(0,0);//.setText('Buildings');//.setFintSize(26);
 	
 	var all_foundations = [];
@@ -484,6 +484,7 @@ towerdef.placeBuildings = function (player, gameScene, gameLayer) {
 
 	
 	bLayer.appendChild(background);
+	bLayer.appendChild(gym);
 	bLayer.appendChild(doneButton);
 	
 	for (i = 0; i < f_down; i++) {
