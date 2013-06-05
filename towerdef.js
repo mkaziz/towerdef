@@ -179,6 +179,7 @@ towerdef.checkGymCollision = function(gym, pokemon, player) {
    	}
 }
 
+
 // GAME CLASSES
 towerdef.player = function(gym, opponent) {
     
@@ -203,10 +204,12 @@ towerdef.player = function(gym, opponent) {
 	this.handleGymCollisions = function () {
 		var myGym = this.gym;
 		var player = this;
-		for (i = 0; i<this.opponent.pokemon.length; i++) {
-			var myPokemon = this.opponent.pokemon[i];
-    		this.pintervalID = setInterval(function () { towerdef.checkGymCollision(myGym, myPokemon, player); }, 250);
-		}
+		this.pintervalID = setInterval(function () {
+            for (i = 0; i<player.opponent.pokemon.length; i++) {
+                var myPokemon = player.opponent.pokemon[i];
+                towerdef.checkGymCollision(myGym, myPokemon, player); 
+            }
+        }, 250);
 	}
 	
 
@@ -228,6 +231,7 @@ towerdef.player = function(gym, opponent) {
 }
 
 towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
+    this.maxHealth = health;
     this.health = health;
     this.attack = attack;
     this.type = type;
@@ -241,6 +245,7 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
     this.resetRoundPosition = function () {
         this.sprite.setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,
         player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5)
+        this.health = this.maxHealth;
         this.collided = false;
     };
 	
@@ -251,6 +256,7 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 		return false;
 	}
 }
+
 
 //TODO: clean all of this up
 towerdef.updateHealth = function(myplayer, healthLayer) {
@@ -418,7 +424,10 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
     pokemonLayer.removeAllChildren();
 
     for (i = 0; i < towerdef.lPlayer.pokemon.length; i++) {
+        
         var pokemon = towerdef.lPlayer.pokemon[i];
+        pokemon.sprite.runAction(new lime.animation.FadeTo(1).setDuration(0.1));
+        
         pokemon.sprite.removeAllChildren();
         pokemonLayer.appendChild(pokemon.sprite);
 
