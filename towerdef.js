@@ -107,7 +107,7 @@ towerdef.checkGymCollision = function(gym, pokemon, player) {
 		if (player.health > 0) {
 			player.health -= towerdef.getGymDamage(pokemon);
 			pokemon.collided = true;
-			pokemon.sprite.runAction(new lime.animation.FadeTo(0).setDuration(0.5));
+			pokemon.sprite.runAction(new lime.animation.FadeTo(0.1).setDuration(0.5));
 			console.log(player.gym.location + " gym health: " + player.health);
 		}
 		else 
@@ -756,16 +756,25 @@ towerdef.playRound = function (gameScene, gameLayer) {
 	
 	towerdef.displayGymHealth(gameLayer); //for both gyms
     
-    lime.scheduleManager.callAfter(function (dt) {
-		towerdef.stopShooting(towerdef.lPlayer);
-		towerdef.stopShooting(towerdef.rPlayer);
-		towerdef.lPlayer.stopUpdates();
-		towerdef.rPlayer.stopUpdates();
-        gameLayer.removeChild(roundLayer);
-        towerdef.lPlayer.money += 20;
-        towerdef.console(gameScene, gameLayer);
-    }, gameScene, towerdef.roundRunTime);
+
     
+    var handleConsoleSwitch = function (dt) {
+        
+        if (towerdef.checkIfPokemonGone(towerdef.lPlayer, towerdef.rPlayer)) {
+            lime.scheduleManager.callAfter(function (dt) {
+                towerdef.stopShooting(towerdef.lPlayer);
+                towerdef.stopShooting(towerdef.rPlayer);
+                towerdef.lPlayer.stopUpdates();
+                towerdef.rPlayer.stopUpdates();
+                gameLayer.removeChild(roundLayer);
+                towerdef.lPlayer.money += 20;
+                towerdef.console(gameScene, gameLayer);
+            }, gameScene, 2000);
+            lime.scheduleManager.unschedule(handleConsoleSwitch, gameScene);
+        }
+    };
+    
+    lime.scheduleManager.scheduleWithDelay(handleConsoleSwitch, gameScene, 1000);
 }
 
 towerdef.start = function(){          
