@@ -182,8 +182,9 @@ towerdef.console = function (gameScene, gameLayer) {
     consoleLayer.appendChild(bulbasaur_icon);
     consoleLayer.appendChild(squirtle_icon);
     
-    var buildingCost = new lime.Label().setText("(" + towerdef.buildingCost + " coin)").setPosition(330, 265).setFontSize(16);
-    var pokemonCost = new lime.Label().setText("(" + towerdef.pokemonCost + " coin)").setPosition(770, 265).setFontSize(16);
+    //coin cost labels
+    var buildingCost = new lime.Label().setText("(" + towerdef.buildingCost + " coin)").setPosition(770, 265).setFontSize(16);
+    var pokemonCost = new lime.Label().setText("(" + towerdef.pokemonCost + " coin)").setPosition(330, 265).setFontSize(16);
     consoleLayer.appendChild(buildingCost);
     consoleLayer.appendChild(pokemonCost);
     
