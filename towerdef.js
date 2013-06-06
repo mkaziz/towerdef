@@ -30,6 +30,7 @@ towerdef.soundtrack;
 
 towerdef.buildingCost = 50;
 towerdef.pokemonCost = 20;
+towerdef.pokemonLimit = 8;
 
 // --------------------------------------------------
 // GAME CLASSES
@@ -155,6 +156,16 @@ towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
 		}
 	}
 	
+}
+
+towerdef.getColor = function(type) {
+		var color;
+		
+		if (type == "fire") {color = '#F00';}
+		else if (type == "grass") {color = '#360';}
+		else {color = '#00F';}
+	
+		return color;
 }
 
 towerdef.building = function (name, health, attack, type, player, sprite_name)  {
