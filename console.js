@@ -50,13 +50,14 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
 	
 	//add building sprites to HUD
 	for (i=0; i < towerdef.lPlayer.buildings.length; i++) {
-		/*var s = towerdef.lPlayer.buildings[i].sprite;
-		var fill = s.getFill();
+		var b = towerdef.lPlayer.buildings[i];
+		/*var fill = s.getFill();
 		var building = new lime.Sprite();
 		building.setFill('#F00');*/
-		var building = towerdef.lPlayer.buildings[i].sprite;
+		var building = new lime.Sprite().setFill(towerdef.getImageFromType(b.type)).setSize(25,25);
+		/*var building = towerdef.lPlayer.buildings[i].sprite;*/
 		building.setPosition(initX + i * 40, 200);
-		building.runAction(new lime.animation.ScaleTo(1.5),0.5);
+		//building.runAction(new lime.animation.ScaleTo(1.5),0.5);
 		buildingsLayer.appendChild(building);
 	}
     

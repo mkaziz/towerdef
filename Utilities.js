@@ -148,3 +148,18 @@ towerdef.hoverOutHandler = function (item, size) {
         item.runAction(new lime.animation.ScaleTo(size).setDuration(.05));
     }
 };
+
+towerdef.getImageFromType = function(type) {
+	switch(type) {
+		case 'fire':
+			return "fire_building.png";
+			break;
+		case 'water':
+			return "water_building.png";
+			break;
+		case 'grass':
+			return "grass_building.png";
+		default:
+			return null;
+	}
+}
