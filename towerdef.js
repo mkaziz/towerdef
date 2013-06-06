@@ -26,7 +26,10 @@ towerdef.rPlayer = null;
 towerdef.roundRunTime = 5000; //milliseconds
 towerdef.director = null;
 towerdef.music = false;
+towerdef.soundtrack;
+
 towerdef.buildingCost = 50;
+towerdef.pokemonCost = 20;
 
 // --------------------------------------------------
 // GAME CLASSES
@@ -166,6 +169,7 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 	this.attack_interval = 500; //milliseconds
 	this.intervalID;
 	this.placed = false;
+	this.droppable = false;
 	
 	this.isInRange = function(pokemon) {
 		if (towerdef.distance(pokemon.sprite, this.sprite) < this.attack_radius) {return true;}
@@ -230,6 +234,8 @@ towerdef.gameScene = function (director) {
 	if (towerdef.music) {
     var music = new lime.audio.Audio("sd.ogg");
     music.play();
+    towerdef.soundtrack = music;
+    //towerdef.soundtrack.baseElement.loop = true;
     
     // workaround to allow for looping
     lime.scheduleManager.scheduleWithDelay(function (dt) {
