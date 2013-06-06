@@ -95,10 +95,11 @@ towerdef.checkGymCollision = function(gym, pokemon, player) {
 			player.health -= towerdef.getGymDamage(pokemon);
 			pokemon.collided = true;
 			pokemon.sprite.runAction(new lime.animation.FadeTo(0.1).setDuration(0.5));
-			console.log(player.gym.location + " gym health: " + player.health);
+			//console.log(player.gym.location + " gym health: " + player.health);
 		}
 		else 
 		{
+			//TODO: lose screen
 			console.log ("You lose!");
 		}
    	}
@@ -147,7 +148,7 @@ towerdef.damageAmount = function(buildingType, pokemonType) {
 towerdef.shoot = function(pokemon, building, buildingsLayer) {
 		var color = building.getColor();
 		
-		console.log("All pokemon done with level: " + towerdef.checkIfPokemonGone(towerdef.lPlayer, towerdef.rPlayer));
+		//console.log("All pokemon done with level: " + towerdef.checkIfPokemonGone(towerdef.lPlayer, towerdef.rPlayer));
 
 		var bullet = new lime.Circle().setSize(5, 5).setFill(building.getColor()).setPosition(building.sprite.getPosition().x, building.sprite.getPosition().y);
 		buildingsLayer.appendChild(bullet);
@@ -166,7 +167,6 @@ towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
 		pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
 	}
 	else {
-		console.log("removing pokemon");
 		pokemon.sprite.runAction(new lime.animation.FadeTo(0).setDuration(0));
 		if (pokemon.sprite.parent_ != undefined) {
 			pokemon.sprite.parent_.removeChild(pokemon);

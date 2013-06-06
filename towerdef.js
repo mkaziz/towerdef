@@ -47,7 +47,7 @@ towerdef.player = function(gym, opponent) {
 	this.buildingAttack = function (buildingsLayer) {
 		for (i = 0; i< this.buildings.length; i++) {
 			for (j = 0; j < this.opponent.pokemon.length; j++) {
-				console.log ("Building " + i, ", " + this.buildings[i].name + " is shooting " + this.opponent.pokemon[j].type + ", pokemon " + j);
+				//console.log ("Building " + i, ", " + this.buildings[i].name + " is shooting " + this.opponent.pokemon[j].type + ", pokemon " + j);
 				this.buildings[i].attack(this.opponent.pokemon[j], buildingsLayer);
 			}
 		}
@@ -163,6 +163,16 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 	}
 }
 
+towerdef.checkAttack = function(pokemon, building, buildingsLayer) {
+	if (building.isInRange(pokemon) && building.attacking == false){
+		towerdef.shoot(pokemon, building, buildingsLayer);
+	}
+	else if (building.isInRange(pokemon) && building.attacking) {
+		building.attacking = false;
+		clearInterval(building.intervalID);
+	}
+}
+
 towerdef.building = function (name, health, attack, type, player, sprite_name)  {
 	this.name = name;
 	this.health = health;
@@ -171,11 +181,12 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 	this.player = player;
 	this.sprite = new lime.Sprite().setFill(sprite_name).setAnchorPoint(0.5, 0.5).setSize(20,20);
 	this.level = 1;
-	this.attack_radius = 700;
+	this.attack_radius = 200;
 	this.attack_interval = 500; //milliseconds
-	this.intervalID;
+	//this.intervalID;
 	this.placed = false;
 	this.droppable = false;
+	this.attacking = false;
 	
 	this.isInRange = function(pokemon) {
 		if (towerdef.distance(pokemon.sprite, this.sprite) < this.attack_radius) {return true;}
@@ -192,15 +203,18 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 		return color;
 	}
 	
+	this.attackIntervalID;
+	
 	this.attack = function(pokemon, buildingsLayer) {
 		var building = this;
-		if (this.isInRange(pokemon)){// && this.intervalID == undefined) {
-			this.intervalID = setInterval(function () {towerdef.shoot(pokemon, building, buildingsLayer);}, this.attack_interval);
+		if (this.attackIntervalID == undefined){
+			this.attackIntervalID = setInterval(function () {towerdef.checkAttack(pokemon, building, buildingsLayer);}, this.attack_interval);
 		}
 	}
 	
 	this.stopShooting = function() {
-		clearInterval(this.intervalID);
+		clearInterval(this.attackIntervalID);
+		this.attackIntervalID = undefined;
 	}
 
 }

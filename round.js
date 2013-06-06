@@ -41,12 +41,12 @@ towerdef.playRound = function (gameScene, gameLayer) {
     towerdef.rPlayer.pokemon.push(new towerdef.pokemon(100,10,"fire",towerdef.rPlayer,"Pikachu_1.png"));
 	
 	towerdef.addBuildingsToRound(gameLayer, towerdef.lPlayer);
-
-	towerdef.lPlayer.buildingAttack(gameLayer);
-	towerdef.rPlayer.buildingAttack(gameLayer);
 	
 	towerdef.addPokemonToRound(gameLayer, towerdef.lPlayer, towerdef.rPlayer);
 	towerdef.addPokemonToRound(gameLayer, towerdef.rPlayer, towerdef.lPlayer);
+	
+	towerdef.lPlayer.buildingAttack(gameLayer);
+	towerdef.rPlayer.buildingAttack(gameLayer);
 	
 	towerdef.lPlayer.handleGymCollisions();
 	towerdef.rPlayer.handleGymCollisions();
