@@ -72,10 +72,7 @@ towerdef.getColor = function(type) {
 //CHECK FOR END ROUND CONDITIONS
 towerdef.playerAllCollidedOrDead = function(player) {
 	for (i = 0; i < player.pokemon.length; i++) {
-		if (player.pokemon[i].collided == false) {
-			return false;
-		}
-		if (player.pokemon[i].health <= 0) {
+		if (player.pokemon[i].collided == false && player.pokemon[i].health > 0) {
 			return false;
 		}
 	}
