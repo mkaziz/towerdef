@@ -108,66 +108,6 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 	}
 }
 
-
-//TODO: clean all of this up
-towerdef.updateHealth = function(myplayer, healthLayer) {
-		var pos = myplayer.gym.getPosition();
-		
-		var healthBackground = new lime.RoundedRect().setSize(myplayer.healthBarSize, 5).setRadius(2).setFill('#FFF').setPosition(pos.x, pos.y - 50);
-		healthLayer.appendChild(healthBackground);
-		
-		var healthLevel = new lime.RoundedRect().setSize(myplayer.health*(myplayer.healthBarSize/100), 5).setRadius(2).setFill('#F00').setPosition(pos.x, pos.y - 50);
-		healthLayer.appendChild(healthLevel);
-	}
-
-towerdef.displayGymHealth = function(gameLayer) {
-	var healthLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
-	gameLayer.appendChild(healthLayer);
-	
-	towerdef.lPlayer.displayHealth(healthLayer);
-	towerdef.rPlayer.displayHealth(healthLayer);
-}
-
-towerdef.shoot = function(pokemon, building, buildingsLayer) {
-		var color = building.getColor();
-		
-		console.log("All pokemon done with level: " + towerdef.checkIfPokemonGone(towerdef.lPlayer, towerdef.rPlayer));
-
-		var bullet = new lime.Circle().setSize(5, 5).setFill(building.getColor()).setPosition(building.sprite.getPosition().x, building.sprite.getPosition().y);
-		buildingsLayer.appendChild(bullet);
-		
-		//TODO: move to position where pokemon will be
-		var shoot = new lime.animation.MoveTo(pokemon.sprite.getPosition().x, pokemon.sprite.getPosition().y);
-		goog.events.listen(shoot,"stop",function(){
-			towerdef.finishShoot(bullet, pokemon, buildingsLayer);	
-		}); 
-		bullet.runAction(shoot, 0.1);
-	}
-	
-towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
-	buildingsLayer.removeChild(bullet);
-	if (!pokemon.checkFainted()) {
-		pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
-	}
-	else {
-		if (pokemon.sprite.parent != undefined) {
-			pokemon.sprite.parent.removeChild(pokemon);
-			
-		}
-	}
-	
-}
-
-towerdef.getColor = function(type) {
-		var color;
-		
-		if (type == "fire") {color = '#F00';}
-		else if (type == "grass") {color = '#360';}
-		else {color = '#00F';}
-	
-		return color;
-}
-
 towerdef.building = function (name, health, attack, type, player, sprite_name)  {
 	this.name = name;
 	this.health = health;
@@ -213,6 +153,7 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 
 // --------------------------------------------------
 // SCENES
+//starting scene "Pokemon Tower Defense"
 towerdef.menuScene = function (director) {
     var menuScene = new lime.Scene();
     director.replaceScene(menuScene);
@@ -237,6 +178,7 @@ towerdef.menuScene = function (director) {
 
 }
 
+//setup for the game scene, then calls console window
 towerdef.gameScene = function (director) {
    
     var gameScene = new lime.Scene();
@@ -275,7 +217,6 @@ towerdef.gameScene = function (director) {
     towerdef.lPlayer = new towerdef.player(lGym, towerdef.rPlayer);
 	towerdef.rPlayer.opponent = towerdef.lPlayer; //doesn't seem to want to add this when rPlayer is created and lPlayer is still null.
    
-    
     towerdef.console(gameScene, gameLayer);
 
 }

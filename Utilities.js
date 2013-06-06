@@ -1,8 +1,10 @@
+//-----------------------------------------
 // GENERIC UTILITY FUNCTIONS
 towerdef.getRandomNumber = function (num) {
     return Math.floor((Math.random()*num)-1)
 }
 
+//get distance between two sprites
 towerdef.distance = function(sprite1, sprite2) {
 	var x1 = sprite1.getPosition().x;
 	var x2 = sprite2.getPosition().x;
@@ -16,7 +18,9 @@ towerdef.distance = function(sprite1, sprite2) {
 	return Math.sqrt ( xd * xd + yd * yd);
 }
 
-// POKEMON-RELATED UTILITY FUNCTIONS
+
+//-----------------------------------------
+// POKEMON-RELATED UTILITY FUNCTIONS - TYPES
 towerdef.strengths = {
     "fire" : "grass",
     "grass" : "water",
@@ -37,21 +41,36 @@ towerdef.getStrength = function(type) {
 	return towerdef.strengths[type];
 }
 
-towerdef.damageAmount = function(buildingType, pokemonType) {
-	var weakness = towerdef.getWeakness(pokemonType);
-	var strength = towerdef.getStrength(pokemonType);
-	
-	if (buildingType == weakness) { return 15;}
-	else if (buildingType == strength) { return 1;}
-	else {return 5;}
-	
+//get the sprite image for the building of that type
+towerdef.getImageFromType = function(type) {
+	switch(type) {
+		case 'fire':
+			return "fire_building.png";
+			break;
+		case 'water':
+			return "water_building.png";
+			break;
+		case 'grass':
+			return "grass_building.png";
+		default:
+			return null;
+	}
 }
 
-towerdef.getGymDamage = function(pokemon) {
-	// TODO: level up?
-	return 5;
+//get color from the type passed in
+towerdef.getColor = function(type) {
+		var color;
+		
+		if (type == "fire") {color = '#F00';}
+		else if (type == "grass") {color = '#360';}
+		else {color = '#00F';}
+	
+		return color;
 }
 
+
+//-----------------------------------------
+//CHECK FOR END ROUND CONDITIONS
 towerdef.playerAllCollidedOrDead = function(player) {
 	for (i = 0; i < player.pokemon.length; i++) {
 		if (player.pokemon[i].collided == false) {
@@ -64,10 +83,15 @@ towerdef.playerAllCollidedOrDead = function(player) {
 	return true;
 }
 
+//check if all of the pokemon in the round have either collided with the opponent Gym or have 0 health
 towerdef.checkIfPokemonGone = function() {
 	return towerdef.playerAllCollidedOrDead(towerdef.lPlayer) && towerdef.playerAllCollidedOrDead(towerdef.rPlayer);
 }	
 
+
+//-----------------------------------------
+//DAMAGE CALCULATIONS - GYMS
+//check for a collision between pokemon and gym
 towerdef.checkGymCollision = function(gym, pokemon, player) {
 	if(goog.math.Box.intersects(gym.getBoundingBox(), pokemon.sprite.getBoundingBox()) && !pokemon.collided){
 		//colliding with Gym
@@ -84,6 +108,78 @@ towerdef.checkGymCollision = function(gym, pokemon, player) {
    	}
 }
 
+//get the amount of damage done to a gym by pokemon
+towerdef.getGymDamage = function(pokemon) {
+	// TODO: level up?
+	return 5;
+}
+
+towerdef.displayGymHealth = function(gameLayer) {
+	var healthLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
+	gameLayer.appendChild(healthLayer);
+	
+	towerdef.lPlayer.displayHealth(healthLayer);
+	towerdef.rPlayer.displayHealth(healthLayer);
+}
+
+//TODO: clean all of this up
+towerdef.updateHealth = function(myplayer, healthLayer) {
+		var pos = myplayer.gym.getPosition();
+		
+		var healthBackground = new lime.RoundedRect().setSize(myplayer.healthBarSize, 5).setRadius(2).setFill('#FFF').setPosition(pos.x, pos.y - 50);
+		healthLayer.appendChild(healthBackground);
+		
+		var healthLevel = new lime.RoundedRect().setSize(myplayer.health*(myplayer.healthBarSize/100), 5).setRadius(2).setFill('#F00').setPosition(pos.x, pos.y - 50);
+		healthLayer.appendChild(healthLevel);
+	}
+
+
+//-----------------------------------------
+//BUILDING UTILITIES - TOWERS
+
+//get the amount of damage a building of buildingType does to a pokemon of pokemonType
+towerdef.damageAmount = function(buildingType, pokemonType) {
+	var weakness = towerdef.getWeakness(pokemonType);
+	var strength = towerdef.getStrength(pokemonType);
+	
+	if (buildingType == weakness) { return 15;}
+	else if (buildingType == strength) { return 1;}
+	else {return 5;}
+	
+}
+
+towerdef.shoot = function(pokemon, building, buildingsLayer) {
+		var color = building.getColor();
+		
+		console.log("All pokemon done with level: " + towerdef.checkIfPokemonGone(towerdef.lPlayer, towerdef.rPlayer));
+
+		var bullet = new lime.Circle().setSize(5, 5).setFill(building.getColor()).setPosition(building.sprite.getPosition().x, building.sprite.getPosition().y);
+		buildingsLayer.appendChild(bullet);
+		
+		//TODO: move to position where pokemon will be
+		var shoot = new lime.animation.MoveTo(pokemon.sprite.getPosition().x, pokemon.sprite.getPosition().y);
+		goog.events.listen(shoot,"stop",function(){
+			towerdef.finishShoot(bullet, pokemon, buildingsLayer);	
+		}); 
+		bullet.runAction(shoot, 0.1);
+	}
+	
+towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
+	buildingsLayer.removeChild(bullet);
+	if (!pokemon.checkFainted()) {
+		pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
+	}
+	else {
+		if (pokemon.sprite.parent != undefined) {
+			pokemon.sprite.parent.removeChild(pokemon);
+			
+		}
+	}
+	
+}
+
+
+//-----------------------------------------
 // HOVER CODE
 towerdef.addHoverListener = function() {
     /**
@@ -148,18 +244,3 @@ towerdef.hoverOutHandler = function (item, size) {
         item.runAction(new lime.animation.ScaleTo(size).setDuration(.05));
     }
 };
-
-towerdef.getImageFromType = function(type) {
-	switch(type) {
-		case 'fire':
-			return "fire_building.png";
-			break;
-		case 'water':
-			return "water_building.png";
-			break;
-		case 'grass':
-			return "grass_building.png";
-		default:
-			return null;
-	}
-}
