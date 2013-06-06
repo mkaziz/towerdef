@@ -95,7 +95,7 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
     this.refreshRoutes = function() {this.route = Math.floor((Math.random()*100)+1); };
     this.resetRoundPosition = function () {
         this.sprite.setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,
-        player.gym.position_.y+50+towerdef.getRandomNumber(40)).setAnchorPoint(0.5,0.5)
+        player.gym.position_.y).setAnchorPoint(0.5,0.5);
         this.health = this.maxHealth;
         this.collided = false;
     };
@@ -105,6 +105,56 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 			return true;
 		}
 		return false;
+	}
+	
+	this.moveNext = function(owner,direction) {
+		var movement = null;
+		var entity = this;
+		var moving = true;
+		// pokemon movng towards opposite gym action
+		if(owner==towerdef.lPlayer){
+			if(this.sprite.position_.x<owner.gym.position_.x+135){
+				movement = new lime.animation.MoveTo(owner.gym.position_.x+135,owner.gym.position_.y).setDuration((owner.gym.position_.x+135-this.sprite.position_.x)/70);
+			}else if(this.sprite.position_.x==owner.gym.position_.x+135 && this.sprite.position_.y==owner.gym.position_.y){
+				if(direction == 0) 
+					movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x-115,owner.gym.position_.y).setDuration((owner.opponent.gym.position_.x-115-this.sprite.position_.x)/70);
+				else if(direction == 1)
+					movement = new lime.animation.MoveTo(owner.gym.position_.x+135,owner.gym.position_.y-190).setDuration(190/70);
+				else if(direction == 2)
+					movement = new lime.animation.MoveTo(owner.gym.position_.x+135,owner.gym.position_.y+190).setDuration(190/70);
+			}else if(this.sprite.position_.x==owner.gym.position_.x+135){
+				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x-115,this.sprite.position_.y).setDuration((owner.opponent.gym.position_.x-115-this.sprite.position_.x)/70);
+			}else if(this.sprite.position_.y != owner.gym.position_.y){
+				movement = new lime.animation.MoveTo(this.sprite.position_.x,owner.gym.position_.y).setDuration(190/70);
+			}else{
+				moving = false;
+				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x,this.sprite.position_.y).setDuration((owner.opponent.gym.position_.x-this.sprite.position_.x)/70);
+			}
+		}else{
+			if(this.sprite.position_.x>owner.gym.position_.x-115){
+				movement = new lime.animation.MoveTo(owner.gym.position_.x-115,owner.gym.position_.y).setDuration((this.sprite.position_.x-owner.gym.position_.x+115)/70);
+			}else if(this.sprite.position_.x==owner.gym.position_.x-115 && this.sprite.position_.y==owner.gym.position_.y){
+				if(direction == 0) 
+					movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x+135,owner.gym.position_.y).setDuration((this.sprite.position_.x-owner.opponent.gym.position_.x-135)/70);
+				else if(direction == 1)
+					movement = new lime.animation.MoveTo(owner.gym.position_.x-115,owner.gym.position_.y-190).setDuration(190/70);
+				else if(direction == 2)
+					movement = new lime.animation.MoveTo(owner.gym.position_.x-115,owner.gym.position_.y+190).setDuration(190/70);
+			}else if(this.sprite.position_.x==owner.gym.position_.x-115){
+				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x+135,this.sprite.position_.y).setDuration((this.sprite.position_.x-owner.opponent.gym.position_.x-135)/70);
+			}else if(this.sprite.position_.y != owner.gym.position_.y){
+				movement = new lime.animation.MoveTo(this.sprite.position_.x,owner.gym.position_.y).setDuration(190/70);
+			}else{
+				moving = false;
+				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x,this.sprite.position_.y).setDuration((this.sprite.position_.x-owner.opponent.gym.position_.x)/70);
+			}
+        }this.sprite.runAction(movement.setEasing(lime.animation.Easing.LINEAR));
+			//new lime.animation.MoveTo(opponent.gym.position_.x+towerdef.getRandomNumber(40)-20,opponent.gym.position_.y+50+towerdef.getRandomNumber(40)));
+
+		goog.events.listen(movement,lime.animation.Event.STOP,function(){
+			if(moving) entity.moveNext(owner,direction);
+			else entity.collided = true;
+		})
 	}
 }
 

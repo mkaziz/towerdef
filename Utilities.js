@@ -18,7 +18,6 @@ towerdef.distance = function(sprite1, sprite2) {
 	return Math.sqrt ( xd * xd + yd * yd);
 }
 
-
 //-----------------------------------------
 // POKEMON-RELATED UTILITY FUNCTIONS - TYPES
 towerdef.strengths = {

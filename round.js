@@ -13,12 +13,9 @@ towerdef.addPokemonToRound = function(roundLayer, player, opponent) {
         roundLayer.appendChild(mySprite);
         mySprite.removeAllChildren();
         player.pokemon[i].resetRoundPosition();
-
-		// pokemon movng towards opposite gym action
-        player.pokemon[i].sprite.runAction(
-			//new lime.animation.MoveTo(opponent.gym.position_.x+towerdef.getRandomNumber(40)-20,opponent.gym.position_.y+50+towerdef.getRandomNumber(40)));
-			new lime.animation.MoveTo(opponent.gym.position_.x,opponent.gym.position_.y)); //testing collisions
-    }
+		
+		player.pokemon[i].moveNext(player,i%3);
+	}
 }
 
 towerdef.stopShooting = function(player) {
