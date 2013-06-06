@@ -51,13 +51,8 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
 	//add building sprites to HUD
 	for (i=0; i < towerdef.lPlayer.buildings.length; i++) {
 		var b = towerdef.lPlayer.buildings[i];
-		/*var fill = s.getFill();
-		var building = new lime.Sprite();
-		building.setFill('#F00');*/
 		var building = new lime.Sprite().setFill(towerdef.getImageFromType(b.type)).setSize(25,25);
-		/*var building = towerdef.lPlayer.buildings[i].sprite;*/
 		building.setPosition(initX + i * 40, 200);
-		//building.runAction(new lime.animation.ScaleTo(1.5),0.5);
 		buildingsLayer.appendChild(building);
 	}
     
@@ -186,6 +181,12 @@ towerdef.console = function (gameScene, gameLayer) {
     consoleLayer.appendChild(charmander_icon);
     consoleLayer.appendChild(bulbasaur_icon);
     consoleLayer.appendChild(squirtle_icon);
+    
+    var buildingCost = new lime.Label().setText("(" + towerdef.buildingCost + " coin)").setPosition(330, 265).setFontSize(16);
+    var pokemonCost = new lime.Label().setText("(" + towerdef.pokemonCost + " coin)").setPosition(770, 265).setFontSize(16);
+    consoleLayer.appendChild(buildingCost);
+    consoleLayer.appendChild(pokemonCost);
+    
 	
 	
     //TODO: find workaround so you're not passing sprite in twice
