@@ -47,7 +47,7 @@ towerdef.player = function(gym, opponent) {
 	this.buildingAttack = function (buildingsLayer) {
 		for (i = 0; i< this.buildings.length; i++) {
 			for (j = 0; j < this.opponent.pokemon.length; j++) {
-				//console.log ("Building " + i, ", " + this.buildings[i].name + " is shooting " + this.opponent.pokemon[j].type + ", pokemon " + j);
+				console.log ("Building " + i, ", " + this.buildings[i].name + " is shooting " + this.opponent.pokemon[j].type + ", pokemon " + j);
 				this.buildings[i].attack(this.opponent.pokemon[j], buildingsLayer);
 			}
 		}
@@ -82,7 +82,7 @@ towerdef.player = function(gym, opponent) {
 }
 
 //speed modifier
-var speed = 70;
+var speed = 100;
 
 towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
     this.maxHealth = health;
@@ -99,6 +99,7 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
     this.resetRoundPosition = function () {
         this.sprite.setPosition(player.gym.position_.x+towerdef.getRandomNumber(40)-20,
         player.gym.position_.y).setAnchorPoint(0.5,0.5);
+		this.sprite.runAction(new lime.animation.FadeTo(1).setDuration(0));
         this.health = this.maxHealth;
         this.collided = false;
     };
@@ -110,6 +111,7 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 		return false;
 	}
 	
+	//FSM-based path finding
 	this.moveNext = function(owner,direction) {
 		var movement = null;
 		var entity = this;
@@ -152,8 +154,8 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x,this.sprite.position_.y).setDuration((this.sprite.position_.x-owner.opponent.gym.position_.x)/speed);
 			}
         }this.sprite.runAction(movement.setEasing(lime.animation.Easing.LINEAR));
-			//new lime.animation.MoveTo(opponent.gym.position_.x+towerdef.getRandomNumber(40)-20,opponent.gym.position_.y+50+towerdef.getRandomNumber(40)));
 
+		//checks when pokemon stop moving, recall function to continue movement
 		goog.events.listen(movement,lime.animation.Event.STOP,function(){
 			if(moving) entity.moveNext(owner,direction);
 			else entity.collided = true;
@@ -192,7 +194,7 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 	
 	this.attack = function(pokemon, buildingsLayer) {
 		var building = this;
-		if (this.isInRange(pokemon) && this.intervalID == undefined) {
+		if (this.isInRange(pokemon)){// && this.intervalID == undefined) {
 			this.intervalID = setInterval(function () {towerdef.shoot(pokemon, building, buildingsLayer);}, this.attack_interval);
 		}
 	}

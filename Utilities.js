@@ -166,8 +166,10 @@ towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
 		pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
 	}
 	else {
-		if (pokemon.sprite.parent != undefined) {
-			pokemon.sprite.parent.removeChild(pokemon);
+		console.log("removing pokemon");
+		pokemon.sprite.runAction(new lime.animation.FadeTo(0).setDuration(0));
+		if (pokemon.sprite.parent_ != undefined) {
+			pokemon.sprite.parent_.removeChild(pokemon);
 			
 		}
 	}
