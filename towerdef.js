@@ -36,7 +36,7 @@ towerdef.buildingCost = 50; 	//amt of coin to buy a building
 towerdef.pokemonCost = 20;		//amt of coin to buy a pokemon
 towerdef.levelUpCost = 5; 		//amt of coin to level up a pokemon;
 
-towerdef.levelUpMoney = 50; 	//amt of coin each player gets at the end of the level, in addition to money for any fainted pokemon
+towerdef.levelUpMoney = 20; 	//amt of coin each player gets at the end of the level, in addition to money for any fainted pokemon
 towerdef.moneyFaintPokemon = 5; //amt of coin each player gets for an opponent's fainted pokemon
 
 towerdef.strongAttack = 20; 	//amt of damage a building does if it is a strength
