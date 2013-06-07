@@ -130,6 +130,7 @@ towerdef.checkGymCollision = function(gym, pokemon, player) {
 			{
 				alert("Game over! You win!");
 			}
+            towerdef.menuScene();
 		}
    	}
 }

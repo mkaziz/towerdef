@@ -261,9 +261,9 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 // --------------------------------------------------
 // SCENES
 //starting scene "Pokemon Tower Defense"
-towerdef.menuScene = function (director) {
+towerdef.menuScene = function () {
     var menuScene = new lime.Scene();
-    director.replaceScene(menuScene);
+    towerdef.director.replaceScene(menuScene);
     
     var layer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
     
@@ -280,16 +280,16 @@ towerdef.menuScene = function (director) {
     menuScene.listenOverOut(start, towerdef.hoverInHandler(start, 0.7), towerdef.hoverOutHandler(start, 0.6));
 
     goog.events.listen(start,['mousedown','touchstart'],function(e) {
-        towerdef.gameScene(director);
+        towerdef.gameScene();
     });
 
 }
 
 //setup for the game scene, then calls console window
-towerdef.gameScene = function (director) {
+towerdef.gameScene = function () {
    
     var gameScene = new lime.Scene();
-    director.replaceScene(gameScene);
+    towerdef.director.replaceScene(gameScene);
     
 	if (towerdef.music) {
     var music = new lime.audio.Audio("sd.ogg");
@@ -338,7 +338,7 @@ towerdef.start = function(){
     director.setDisplayFPS(true);          
     
     towerdef.addHoverListener();
-    towerdef.menuScene(director);
+    towerdef.menuScene();
 }
 
 
