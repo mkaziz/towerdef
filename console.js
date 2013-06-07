@@ -239,17 +239,20 @@ towerdef.makeDraggable = function (item) {
     var itemSprite = item.sprite;
     var radius = new lime.Circle().setSize(towerdef.towerRadius,towerdef.towerRadius);
     radius.setStroke(new lime.fill.Stroke(towerdef.towerRadius,item.getColor()));
+    
 	//make the building draggable
 		goog.events.listen(itemSprite, 'mousedown', function(e){
 			var drag = e.startDrag(false);
 			e.event.stopPropagation(); 
 			itemSprite.appendChild(radius);
+			radius.runAction(new lime.animation.FadeTo(0.3).setDuration(0.1));
             
             
 			e.swallow(['mouseup','touchend','touchcancel'],function(){
 				var myX = itemSprite.getPosition().x;
 				var myY = itemSprite.getPosition().y;
                 itemSprite.removeChild(radius);
+                item.placed = true;
 				
 				if (myX > 400) {
 					itemSprite.runAction(new lime.animation.MoveTo(400, myY).setDuration(0.5));
@@ -306,7 +309,12 @@ towerdef.placeBuildings = function (player, gameScene, gameLayer, consoleLayer) 
 	//populate console with buildings to place
 	for (i = 0;  i<player.buildings.length; i++) {
 		towerdef.makeDraggable(player.buildings[i]);
-		bLayer.appendChild(player.buildings[i].sprite.setPosition(initX, initY + i * interval));
+		if (!player.buildings[i].placed) {
+			bLayer.appendChild(player.buildings[i].sprite.setPosition(initX, initY + i * interval));
+		}
+		else {
+				bLayer.appendChild(player.buildings[i].sprite);
+			}
 		player.buildings[i].sprite.runAction(new lime.animation.ScaleTo(1.5), 0.5);
 	}
 	
