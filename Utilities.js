@@ -182,7 +182,7 @@ towerdef.shoot = function(pokemon, building, buildingsLayer) {
 		buildingsLayer.appendChild(bullet);
 		
 		//TODO: move to position where pokemon will be
-		var shoot = new lime.animation.MoveTo(pokemon.sprite.getPosition().x, pokemon.sprite.getPosition().y);
+		var shoot = new lime.animation.MoveTo(pokemon.sprite.getPosition().x, pokemon.sprite.getPosition().y).setDuration(0.1);
 		goog.events.listen(shoot,"stop",function(){
 			towerdef.finishShoot(bullet, pokemon, buildingsLayer);	
 		}); 
