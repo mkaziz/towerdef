@@ -31,6 +31,7 @@ towerdef.soundtrack;
 towerdef.buildingCost = 50;
 towerdef.pokemonCost = 20;
 towerdef.pokemonLimit = 8;
+towerdef.levelUpCost = 5;
 
 // --------------------------------------------------
 // GAME CLASSES
