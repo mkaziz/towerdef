@@ -72,7 +72,10 @@ towerdef.player = function(gym, opponent) {
 	
 	this.stopUpdates = function () {
 		clearInterval(this.pintervalID);
-		clearInterval(this.hintervalID); //todo: update health if a collision is detected	
+		clearInterval(this.hintervalID); //todo: update health if a collision is detected
+		for (i = 0; i<this.pokemon.length; i++){
+			this.pokemon[i].stopUpdates();
+		}	
 	}
 	
 	this.displayHealth = function(healthLayer){
@@ -111,6 +114,24 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 			return true;
 		}
 		return false;
+	}
+	
+	this.hintervalID;
+	this.healthBackground;
+	this.healthLevel;
+	this.displayHealth = function(healthLayer){
+		var pokemon = this;
+		var pos = this.sprite.getPosition();
+		this.healthBackground = new lime.RoundedRect().setSize(pokemon.maxHealth/2, 5).setRadius(2).setFill('#FFF').setPosition(pos.x, pos.y - 20);
+		this.healthLevel = new lime.RoundedRect().setSize(pokemon.health*(pokemon.maxHealth/200), 5).setRadius(2).setFill('#F00').setPosition(pos.x, pos.y - 20);
+		healthLayer.appendChild(this.healthBackground);
+		healthLayer.appendChild(this.healthLevel);
+		
+		this.hintervalID = setInterval(function () { towerdef.pokemonHealthBar (pokemon, healthLayer);}, 50);
+	}
+	
+	this.stopUpdates = function() {
+		clearInterval(this.hintervalID);
 	}
 	
 	//FSM-based path finding

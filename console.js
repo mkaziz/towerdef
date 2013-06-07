@@ -142,6 +142,7 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
     moneyLayer.appendChild(moneyLabel);
     
 }
+towerdef.firstRound = true;
 
 //configure the console
 towerdef.console = function (gameScene, gameLayer) {
@@ -191,11 +192,19 @@ towerdef.console = function (gameScene, gameLayer) {
 	consoleLayer.appendChild(placeBuildingsButton);
     towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
     
+    
     var instructions = new lime.Sprite().setSize(900,506).setFill("Instructions.png").setPosition(450,253).setAnchorPoint(0.5,0.5);
-    var instrToggleButton = new lime.GlossyButton("Continue").setPosition(550, 465).setSize(150,40).setFontSize(18).setColor('#C00');
+    var instrToggleButton = new lime.GlossyButton("Continue").setSize(150,40).setFontSize(18).setColor('#C00');
     var instrToggle_on = true;
     
-    consoleLayer.appendChild(instructions);
+    if(towerdef.firstRound) {
+    	consoleLayer.appendChild(instructions);
+    	instrToggleButton.setPosition(550, 465);
+    	towerdef.firstRound = false;
+    }
+    else {
+    	instrToggleButton.setPosition(100, 450);
+    }
     consoleLayer.appendChild(instrToggleButton);
     
    goog.events.listen(instrToggleButton, ['mousedown','touchstart'], function(e) {
@@ -245,6 +254,18 @@ towerdef.makeDraggable = function (item) {
 		});
 }
 
+towerdef.makeTutorialLabel = function(bLayer, sizeX, sizeY, posX, posY, image) {
+	var icon = new lime.Sprite().setSize(sizeX,sizeY).setFill(image).setPosition(posX, posY).setAnchorPoint(0.5,0.5);
+
+	bLayer.appendChild(icon);
+	
+	var icon_anim = new lime.animation.ScaleTo(0.5);
+	icon.runAction(icon_anim, 0.5);
+	goog.events.listen(icon_anim, lime.animation.Event.STOP, function() {
+		icon.runAction(new lime.animation.ScaleTo(0.75), 0.5);
+	});
+}
+
 //transition to place buildings screen
 towerdef.placeBuildings = function (player, gameScene, gameLayer, consoleLayer) {
 	// Building layers
@@ -257,40 +278,18 @@ towerdef.placeBuildings = function (player, gameScene, gameLayer, consoleLayer) 
 	var background = new lime.Sprite().setSize(900,506).setFill("background.png").setPosition(0,0).setAnchorPoint(0,0);
 	//var doneButton = new lime.GlossyButton("Done!").setPosition(700, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
 	var gym = new lime.Sprite().setSize(96,80).setFill("gym.png").setPosition(50,250).setAnchorPoint(0.5,0.5);
-	var c = new lime.RoundedRect().setFill(255, 255, 255, 0.5).setPosition(550, 20).setSize(300, 400).setAnchorPoint(0,0);
+	var c = new lime.RoundedRect().setFill(255, 255, 255, 0.85).setPosition(550, 20).setSize(300, 400).setAnchorPoint(0,0);
 	var cl = new lime.Sprite().setPosition(700, 80).setSize(150, 35).setFill("buildings_header.png");
-	var gym_arrow = new lime.Sprite().setSize(90,150).setFill("arrow.png").setPosition(50,125).setAnchorPoint(0.5,0.5);
-	var b_arrow = new lime.Sprite().setSize(200, 75).setFill("barrow.png").setPosition(700, 465).setAnchorPoint(0.5,0.5);
-	var drag_here = new lime.Sprite().setSize(175, 50).setFill("dragbuildings.png").setPosition(200, 475).setAnchorPoint(0.5,0.5);
-	
-	var gym_arrow_anim = new lime.animation.ScaleTo(0.5);
-	gym_arrow.runAction(gym_arrow_anim, 0.5);
-	goog.events.listen(gym_arrow_anim, lime.animation.Event.STOP, function() {
-		gym_arrow.runAction(new lime.animation.ScaleTo(0.75), 0.5);
-	});
-	
-	var b_arrow_anim = new lime.animation.ScaleTo(0.5);
-	b_arrow.runAction(b_arrow_anim, 0.5);
-	goog.events.listen(b_arrow_anim, lime.animation.Event.STOP, function() {
-		b_arrow.runAction(new lime.animation.ScaleTo(0.75), 0.5);
-	});
-	
-	var drag_here_anim = new lime.animation.ScaleTo(0.5);
-	drag_here.runAction(drag_here_anim, 0.5);
-	goog.events.listen(drag_here_anim, lime.animation.Event.STOP, function() {
-		drag_here.runAction(new lime.animation.ScaleTo(0.75), 0.5);
-	});
-	
-	
-
 
 	bLayer.appendChild(background);
 	bLayer.appendChild(gym);
-	bLayer.appendChild(gym_arrow);
-	bLayer.appendChild(b_arrow);
-	bLayer.appendChild(drag_here);
 	bLayer.appendChild(c);
 	bLayer.appendChild(cl);
+	
+	//add tutorial labels
+	towerdef.makeTutorialLabel(bLayer, 90, 150, 50, 125, "arrow.png");
+	towerdef.makeTutorialLabel(bLayer, 200, 75, 700, 465, "barrow.png");
+	towerdef.makeTutorialLabel(bLayer, 175, 50, 200, 475, "dragbuildings.png");
 
 	var initX = 600;
 	var initY = 200;
@@ -300,6 +299,7 @@ towerdef.placeBuildings = function (player, gameScene, gameLayer, consoleLayer) 
 	for (i = 0;  i<player.buildings.length; i++) {
 		towerdef.makeDraggable(player.buildings[i].sprite);
 		bLayer.appendChild(player.buildings[i].sprite.setPosition(initX, initY + i * interval));
+		player.buildings[i].sprite.runAction(new lime.animation.ScaleTo(1.5), 0.5);
 	}
 	
 //	placeBuildingsScene.listenOverOut(doneButton, towerdef.hoverInHandler(doneButton, 1.2), towerdef.hoverOutHandler(doneButton, 1.0));
@@ -312,6 +312,12 @@ towerdef.placeBuildings = function (player, gameScene, gameLayer, consoleLayer) 
     bLayer.appendChild(playButton);
 	
 	goog.events.listen(playButton, ['mousedown','touchstart'], function(e) {
+		//move buildings to playble area
+		for (i=0; i<towerdef.lPlayer.buildings.length; i++){
+			if(towerdef.lPlayer.buildings[i].sprite.getPosition().x > 450) {
+				towerdef.lPlayer.buildings[i].sprite.setPosition(250, 450);
+			}
+		}
         gameLayer.removeChild(bLayer);
         towerdef.director.popScene();
         gameLayer.removeChild(consoleLayer);

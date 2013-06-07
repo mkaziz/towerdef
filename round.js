@@ -9,13 +9,14 @@ towerdef.addBuildingsToRound = function(roundLayer, player) {
 	}
 }
 
+
 towerdef.addPokemonToRound = function(roundLayer, player, opponent) {
     for (i = 0; i < player.pokemon.length; i++) {
 		var mySprite = player.pokemon[i].sprite;
         roundLayer.appendChild(mySprite);
         mySprite.removeAllChildren();
         player.pokemon[i].resetRoundPosition();
-		
+		player.pokemon[i].displayHealth(roundLayer);
 		player.pokemon[i].moveNext(player,i%3);
 	}
 }
@@ -100,8 +101,7 @@ towerdef.opponentAI = function() {
 }
 
 towerdef.playRound = function (gameScene, gameLayer) {
-	console.log("playing round");
-    
+
     var roundLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
     var starting = new lime.Sprite().setSize(540,160).setFill("starting.png").setPosition(450,150).setAnchorPoint(0.5,0.5).setScale(1.5,1.5);
     
