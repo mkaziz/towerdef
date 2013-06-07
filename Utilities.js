@@ -68,10 +68,17 @@ towerdef.getColor = function(type) {
 }
 
 towerdef.pokemonHealthBar = function (pokemon, healthLayer) {
+	
+		if(!pokemon.collided){
 		var pos = pokemon.sprite.getPosition();
 		
 		pokemon.healthBackground.setPosition(pos.x, pos.y - 20);
 		pokemon.healthLevel.setPosition(pos.x, pos.y - 20).setSize(pokemon.health*(pokemon.maxHealth/200), 5);
+		}
+		else {
+			healthLayer.removeChild(pokemon.healthBackground);
+			healthLayer.removeChild(pokemon.healthLevel);
+		}
 }
 //-----------------------------------------
 //CHECK FOR END ROUND CONDITIONS

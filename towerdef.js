@@ -131,6 +131,8 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 	}
 	
 	this.stopUpdates = function() {
+		this.healthBackground = null;
+		this.healthLevel = null;
 		clearInterval(this.hintervalID);
 	}
 	
@@ -212,7 +214,7 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 	this.attacking = false;
 	
 	this.isInRange = function(pokemon) {
-		if (towerdef.distance(pokemon.sprite, this.sprite) < this.attack_radius) {return true;}
+		if (towerdef.distance(pokemon.sprite, this.sprite) < this.attack_radius && !pokemon.collided) {return true;}
 		return false;
 	}
 	
