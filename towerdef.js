@@ -123,6 +123,12 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
     this.levelUpCost = function () {
         return 2*(this.level) + 5;
     }
+    
+    this.levelUp = function () {
+        this.attack += 0
+        this.maxHealth += 3
+        this.level += 1;
+    }
 	
 	this.isFainted = function () {
 		if (this.health <= 0) {

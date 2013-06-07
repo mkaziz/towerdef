@@ -117,9 +117,7 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
         goog.events.listen(lvlUpButton, ['mousedown','touchstart'], function(e) {
             cost = pokemon.levelUpCost();
             if (towerdef.lPlayer.money >= cost) {
-                this.pokemon.attack += 1
-                this.pokemon.health += 3
-                this.pokemon.level += 1;
+                pokemon.levelUp();
                 towerdef.lPlayer.money -= cost;
                 towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
             }

@@ -36,7 +36,7 @@ towerdef.opponentAI = function() {
 	
     var bp = Math.random(); //buy building or pokemon?
     
-    if (bp <= 0.70) {
+    if (bp <= 0.70 || op.buildings.length == 0) {
         
         var r = Math.random(); //type of building?
         //choses a new pokemon with even probability
