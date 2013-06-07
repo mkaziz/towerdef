@@ -193,15 +193,9 @@ towerdef.shoot = function(pokemon, building, buildingsLayer) {
 	
 towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
 	buildingsLayer.removeChild(bullet);
-	if (!pokemon.isFainted()) {
-		pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
-	}
-	else {
-		if (pokemon.sprite.parent_ != undefined) {
-			pokemon.sprite.parent_.removeChild(pokemon.sprite);
-			
-		}
-	}
+    if (!pokemon.isFainted()) {
+        pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
+    }
 	
 }
 

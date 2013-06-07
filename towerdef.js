@@ -155,7 +155,11 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 	}
 	
 	this.stopUpdates = function() {
-
+        
+        if (this.sprite.parent_ != undefined) {
+            this.sprite.parent_.removeChild(this.sprite);
+        }
+        
 		this.healthBackground = null;
 		this.healthLevel = null;
 		clearInterval(this.hintervalID);
@@ -285,6 +289,7 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 	}
 	
 	this.stopShooting = function() {
+        
 		clearInterval(this.attackIntervalID);
 		this.attackIntervalID = undefined;
 	}
