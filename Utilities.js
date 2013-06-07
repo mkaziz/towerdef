@@ -151,10 +151,10 @@ towerdef.displayGymHealth = function(gameLayer) {
 towerdef.updateHealth = function(myplayer, healthLayer) {
 		var pos = myplayer.gym.getPosition();
 		
-		var healthBackground = new lime.RoundedRect().setSize(myplayer.healthBarSize, 5).setRadius(2).setFill('#FFF').setPosition(pos.x, pos.y - 50);
+		var healthBackground = new lime.RoundedRect().setSize(myplayer.healthBarSize, 5).setRadius(2).setFill('#FFF').setPosition(pos.x - 25, pos.y - 50).setAnchorPoint(0,0);
 		healthLayer.appendChild(healthBackground);
 		
-		var healthLevel = new lime.RoundedRect().setSize(myplayer.health*(myplayer.healthBarSize/100), 5).setRadius(2).setFill('#F00').setPosition(pos.x, pos.y - 50);
+		var healthLevel = new lime.RoundedRect().setSize(myplayer.health*(myplayer.healthBarSize/100), 5).setRadius(2).setFill('#F00').setPosition(pos.x  - 25, pos.y - 50).setAnchorPoint(0,0);
 		healthLayer.appendChild(healthLevel);
 	}
 

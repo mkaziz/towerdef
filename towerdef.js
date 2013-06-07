@@ -135,8 +135,8 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 	this.displayHealth = function(healthLayer){
 		var pokemon = this;
 		var pos = this.sprite.getPosition();
-		this.healthBackground = new lime.RoundedRect().setSize(pokemon.maxHealth/2, 5).setRadius(2).setFill('#FFF').setPosition(pos.x, pos.y - 20);
-		this.healthLevel = new lime.RoundedRect().setSize(pokemon.health*(pokemon.maxHealth/200), 5).setRadius(2).setFill('#F00').setPosition(pos.x, pos.y - 20);
+		this.healthBackground = new lime.RoundedRect().setSize(pokemon.maxHealth/2, 5).setRadius(2).setFill('#FFF').setPosition(pos.x - 25, pos.y - 20).setAnchorPoint(0,0);
+		this.healthLevel = new lime.RoundedRect().setSize(pokemon.health*(pokemon.maxHealth/200), 5).setRadius(2).setFill('#F00').setPosition(pos.x - 25, pos.y - 20).setAnchorPoint(0,0);
 		healthLayer.appendChild(this.healthBackground);
 		healthLayer.appendChild(this.healthLevel);
 		
