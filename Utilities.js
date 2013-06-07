@@ -69,7 +69,7 @@ towerdef.getColor = function(type) {
 
 towerdef.pokemonHealthBar = function (pokemon, healthLayer) {
 	
-		if(!pokemon.collided && !pokemon.checkFainted()) {
+		if(!pokemon.collided && !pokemon.isFainted()) {
             var pos = pokemon.sprite.getPosition();
             
             pokemon.healthBackground.setPosition(pos.x, pos.y - 20);
@@ -102,7 +102,7 @@ towerdef.checkIfPokemonGone = function() {
 towerdef.numberOpponentFaintedPokemon = function(opponent) {
 	var count = 0;
 	for (i=0; i<opponent.pokemon.length; i++){
-		if (opponent.pokemon[i].checkFainted()){
+		if (opponent.pokemon[i].isFainted()){
 			count++;
 		}
 	}
@@ -193,7 +193,7 @@ towerdef.shoot = function(pokemon, building, buildingsLayer) {
 	
 towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
 	buildingsLayer.removeChild(bullet);
-	if (!pokemon.checkFainted()) {
+	if (!pokemon.isFainted()) {
 		pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
 	}
 	else {

@@ -122,7 +122,7 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
         this.collided = false;
     };
 	
-	this.checkFainted = function () {
+	this.isFainted = function () {
 		if (this.health <= 0) {
 			return true;
 		}
@@ -240,8 +240,26 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 	this.droppable = false;
 	this.attacking = false;
 	
+    this.getBestTarget = function () {
+        var opponentPokemon = this.opponent.pokemon;
+        var chosenPokemon = null;
+        var chosenPokemonDist = towerdef.towerRadius;
+        for (i = 0; i < opponentPokemon.length; i++) {
+            if (this.isInRange(opponentPokemon[i])) {
+                var dist = towerdef.distance(pokemon.sprite, this.sprite);
+                if (dist < chosenPokemonDist) {
+                    chosenPokemonDist = dist;
+                    chosenPokemon = opponentPokemon[i];
+                }
+            }
+        }
+        
+        return chosenPokemon;
+        
+    }
+    
 	this.isInRange = function(pokemon) {
-		if (towerdef.distance(pokemon.sprite, this.sprite) < this.attack_radius && !pokemon.collided) {return true;}
+		if (towerdef.distance(pokemon.sprite, this.sprite) < this.attack_radius && !pokemon.collided && !pokemon.isFainted()) {return true;}
 		return false;
 	}
 	
