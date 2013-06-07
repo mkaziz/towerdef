@@ -19,13 +19,18 @@ towerdef.buy = function(name, sprite, type, isPokemon, gameScene, pokemonLayer, 
 				}
 		}
 		else { //buying a building
-			if(towerdef.lPlayer.money >= towerdef.buildingCost) { //enough money
-				towerdef.lPlayer.money -= towerdef.buildingCost;
-				towerdef.lPlayer.buildings.push(new towerdef.building(name, 100,10,type, towerdef.lPlayer, sprite));
-			}
-			else { //not enough money
-				alert("You don't have enough money to buy a " + name);
-			}
+			if (towerdef.lPlayer.building.length <= towerdef.buildingLimit) { //under building limit
+                if(towerdef.lPlayer.money >= towerdef.buildingCost) { //enough money
+                    towerdef.lPlayer.money -= towerdef.buildingCost;
+                    towerdef.lPlayer.buildings.push(new towerdef.building(name, 100,10,type, towerdef.lPlayer, sprite));
+                }
+                else { //not enough money
+                    alert("You don't have enough money to buy a " + name);
+                }
+            }
+            else { //at building limit
+				alert("You are at the building limit of " +towerdef.buildingLimit);
+            }
 		}
 
 		towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);

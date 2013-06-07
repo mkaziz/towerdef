@@ -31,6 +31,7 @@ towerdef.soundtrack;
 //--------------------------------
 //GAME VARIABLES
 towerdef.pokemonLimit = 8; 		//max number of pokemon player can buy
+towerdef.buildingLimit = 6;
 
 towerdef.buildingCost = 50; 	//amt of coin to buy a building
 towerdef.pokemonCost = 20;		//amt of coin to buy a pokemon
