@@ -163,7 +163,7 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
         if (this.sprite.parent_ != undefined) {
             this.sprite.parent_.removeChild(this.sprite);
         }
-        
+        //this.moving = false;
 		this.healthBackground = null;
 		this.healthLevel = null;
 		clearInterval(this.hintervalID);
