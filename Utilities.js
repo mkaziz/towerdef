@@ -80,6 +80,8 @@ towerdef.pokemonHealthBar = function (pokemon, healthLayer) {
 			healthLayer.removeChild(pokemon.healthLevel);
 		}
 }
+
+
 //-----------------------------------------
 //CHECK FOR END ROUND CONDITIONS
 towerdef.playerAllCollidedOrDead = function(player) {
@@ -96,6 +98,15 @@ towerdef.checkIfPokemonGone = function() {
 	return towerdef.playerAllCollidedOrDead(towerdef.lPlayer) && towerdef.playerAllCollidedOrDead(towerdef.rPlayer);
 }	
 
+towerdef.numberOpponentFaintedPokemon = function(opponent) {
+	var count = 0;
+	for (i=0; i<opponent.pokemon.length; i++){
+		if (opponent.pokemon[i].checkFainted()){
+			count++;
+		}
+	}
+	return count;
+}
 
 //-----------------------------------------
 //DAMAGE CALCULATIONS - GYMS
@@ -112,14 +123,20 @@ towerdef.checkGymCollision = function(gym, pokemon, player) {
 		else 
 		{
 			//TODO: lose screen
-			console.log ("You lose!");
+			if (gym.location = "left"){
+				alert("Game over! You lose!");
+			}
+			else 
+			{
+				alert("Game over! You win!");
+			}
 		}
    	}
 }
 
 //get the amount of damage done to a gym by pokemon
 towerdef.getGymDamage = function(pokemon) {
-	return pokemon.level * 2;
+	return pokemon.level * towerdef.gymDamage;
 }
 
 towerdef.displayGymHealth = function(gameLayer) {
@@ -150,9 +167,9 @@ towerdef.damageAmount = function(buildingType, pokemonType) {
 	var weakness = towerdef.getWeakness(pokemonType);
 	var strength = towerdef.getStrength(pokemonType);
 	
-	if (buildingType == weakness) { return 15;}
-	else if (buildingType == strength) { return 1;}
-	else {return 5;}
+	if (buildingType == weakness) { return towerdef.strongAttack;}
+	else if (buildingType == strength) { return towerdef.weakAttack;}
+	else {return towerdef.medAttack;}
 	
 }
 

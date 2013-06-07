@@ -131,7 +131,8 @@ towerdef.playRound = function (gameScene, gameLayer) {
 	towerdef.displayGymHealth(gameLayer); //for both gyms
     
     var handleConsoleSwitch = function (dt) {
-        
+    	
+        //end round
         if (towerdef.checkIfPokemonGone(towerdef.lPlayer, towerdef.rPlayer)) {
             towerdef.stopShooting(towerdef.lPlayer);
             towerdef.stopShooting(towerdef.rPlayer);            
@@ -139,8 +140,8 @@ towerdef.playRound = function (gameScene, gameLayer) {
             towerdef.rPlayer.stopUpdates();
             lime.scheduleManager.callAfter(function (dt) {
                 gameLayer.removeChild(roundLayer);
-                towerdef.lPlayer.money += towerdef.levelUpMoney;
-                towerdef.rPlayer.money += towerdef.levelUpMoney;
+                towerdef.lPlayer.money += towerdef.levelUpMoney + towerdef.numberOpponentFaintedPokemon(towerdef.rPlayer) *towerdef.moneyFaintPokemon;
+                towerdef.rPlayer.money += towerdef.levelUpMoney + towerdef.numberOpponentFaintedPokemon(towerdef.lPlayer) *towerdef.moneyFaintPokemon;
                 towerdef.console(gameScene, gameLayer);
             }, gameScene, 2000);
             lime.scheduleManager.unschedule(handleConsoleSwitch, gameScene);

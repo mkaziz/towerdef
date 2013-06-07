@@ -3,29 +3,33 @@
 //buy a pokemon or a building by clicking on the respective Clickable Icon
 towerdef.buy = function(name, sprite, type, isPokemon, gameScene, pokemonLayer, moneyLayer, buildingsLayer) {
 		var cost = 0;
-		var pkLimitOK = true;
-		if(isPokemon) {
-			if (towerdef.lPlayer.pokemon.length >= towerdef.pokemonLimit) {pkLimitOK = false;}
-			cost = towerdef.pokemonCost;
-			towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,type,towerdef.lPlayer,sprite));
-		}
-		else {
-			cost = towerdef.buildingCost;
-			towerdef.lPlayer.buildings.push(new towerdef.building(name, 100,10,type, towerdef.lPlayer, sprite));
-		}
-	
-		if (towerdef.lPlayer.money >= cost && pkLimitOK) {
-			towerdef.lPlayer.money -= cost
-			towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
-		}
-		else {
-			if (pkLimitOK) {
-			alert("You don't have enough money to buy a " + name);
+		if(isPokemon) { //buying a pokemon
+			if (towerdef.lPlayer.pokemon.length <= towerdef.pokemonLimit) { //under pokemon limit
+				if (towerdef.lPlayer.money >= towerdef.pokemonCost) { //enough money
+				cost = towerdef.pokemonCost;
+				towerdef.lPlayer.money -= cost
+				towerdef.lPlayer.pokemon.push(new towerdef.pokemon(100,10,type,towerdef.lPlayer,sprite));
+				}
+				else { //not enough money
+					alert("You don't have enough money to buy a " + name);
+				}
 			}
-			else {
-				alert("You are at the pokemon limit of " +towerdef.pokemonLimit)
+			else { //at pokemon limit
+				alert("You are at the pokemon limit of " +towerdef.pokemonLimit);
+				}
+		}
+		else { //buying a building
+			if(towerdef.lPlayer.money >= towerdef.buildingCost) { //enough money
+				towerdef.lPlayer.money -= towerdef.buildingCost;
+				towerdef.lPlayer.buildings.push(new towerdef.building(name, 100,10,type, towerdef.lPlayer, sprite));
+			}
+			else { //not enough money
+				alert("You don't have enough money to buy a " + name);
 			}
 		}
+
+		towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
+
 }
 
 //add help text to the Clickable Icon
@@ -163,8 +167,10 @@ towerdef.console = function (gameScene, gameLayer) {
     consoleLayer.appendChild(buildingsLayer);
     
    	//coin cost labels
+   	var lvlUpCost = new lime.Label().setText("( Lvl up: " + towerdef.levelUpCost + " coins)").setPosition(30, 148).setFontSize(16).setAnchorPoint(0,0);
     var buildingCost = new lime.Label().setText("(" + towerdef.buildingCost + " coins)").setPosition(770, 265).setFontSize(16);
     var pokemonCost = new lime.Label().setText("(" + towerdef.pokemonCost + " coins)").setPosition(330, 265).setFontSize(16);
+     consoleLayer.appendChild(lvlUpCost);
     consoleLayer.appendChild(buildingCost);
     consoleLayer.appendChild(pokemonCost);
 	
@@ -302,8 +308,6 @@ towerdef.placeBuildings = function (player, gameScene, gameLayer, consoleLayer) 
 		player.buildings[i].sprite.runAction(new lime.animation.ScaleTo(1.5), 0.5);
 	}
 	
-//	placeBuildingsScene.listenOverOut(doneButton, towerdef.hoverInHandler(doneButton, 1.2), towerdef.hoverOutHandler(doneButton, 1.0));
-	
 	//listen for "done"
 	
 	var playButton = new lime.GlossyButton("Play Round");
@@ -324,10 +328,6 @@ towerdef.placeBuildings = function (player, gameScene, gameLayer, consoleLayer) 
         towerdef.playRound(gameScene, gameLayer);
         e.event.stopPropagation();
     });
-	/*goog.events.listen(doneButton, ['mousedown','touchstart'], function(e) {
-		placeBuildingsScene.removeChild(bLayer);
-		towerdef.director.popScene();
-		e.event.stopPropagation();
-    });*/
+
 	
 }
