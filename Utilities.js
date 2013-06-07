@@ -199,15 +199,15 @@ towerdef.shoot = function(pokemon, building, buildingsLayer) {
 		//TODO: move to position where pokemon will be
 		var shoot = new lime.animation.MoveTo(pokemon.sprite.getPosition().x, pokemon.sprite.getPosition().y).setDuration(0.1);
 		goog.events.listen(shoot,"stop",function(){
-			towerdef.finishShoot(bullet, pokemon, buildingsLayer);	
+			towerdef.finishShoot(bullet, pokemon, buildingsLayer, building);	
 		}); 
 		bullet.runAction(shoot, 0.1);
 	}
 	
-towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
+towerdef.finishShoot = function (bullet, pokemon, buildingsLayer, building) {
 	buildingsLayer.removeChild(bullet);
     if (!pokemon.isFainted()) {
-        pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
+        pokemon.health -= towerdef.damageAmount(building.type, pokemon.type);
     }
 	
 }
