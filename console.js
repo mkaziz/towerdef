@@ -31,7 +31,7 @@ towerdef.buy = function(name, sprite, type, isPokemon, gameScene, pokemonLayer, 
 //add help text to the Clickable Icon
 towerdef.addHelpText = function(gameScene, layer, x, y, name, type, isPokemon, help_text) {
 	//add icon to hover over for assistance
-	var help_icon = new lime.Label().setText("?").setPosition(x, y+60).setFill(towerdef.getColor(type)).setSize(16,16).setFontColor('#FFF').setFontWeight('bold').setFontSize(16);
+	var help_icon = new lime.Label().setText("?").setPosition(x, y+60).setFill(towerdef.getColor(type)).setSize(16,16).setFontColor('#FFF').setFontWeight('bold').setFontSize(16).setPadding(2,2,2,2);
 	layer.appendChild(help_icon);
 	
 	//if user has not specified extra text, leave this blank in help text
@@ -162,8 +162,8 @@ towerdef.console = function (gameScene, gameLayer) {
     consoleLayer.appendChild(buildingsLayer);
     
    	//coin cost labels
-    var buildingCost = new lime.Label().setText("(" + towerdef.buildingCost + " coin)").setPosition(770, 265).setFontSize(16);
-    var pokemonCost = new lime.Label().setText("(" + towerdef.pokemonCost + " coin)").setPosition(330, 265).setFontSize(16);
+    var buildingCost = new lime.Label().setText("(" + towerdef.buildingCost + " coins)").setPosition(770, 265).setFontSize(16);
+    var pokemonCost = new lime.Label().setText("(" + towerdef.pokemonCost + " coins)").setPosition(330, 265).setFontSize(16);
     consoleLayer.appendChild(buildingCost);
     consoleLayer.appendChild(pokemonCost);
 	
@@ -183,25 +183,37 @@ towerdef.console = function (gameScene, gameLayer) {
 	towerdef.createClickableIcon(gameScene, pokemonLayer, moneyLayer, buildingsLayer, consoleLayer, 825, 350, 
 		'water_building_large.png', "water_building.png", "water", "Water building", false);
 
-	//add a play button and place buildings button
-    /*var playButton = new lime.GlossyButton("Play Round");
-    playButton.setPosition(450, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
-    gameScene.listenOverOut(playButton, towerdef.hoverInHandler(playButton, 1.2), towerdef.hoverOutHandler(playButton, 1.0));*/
-	
+	//add a place buildings button
 	var placeBuildingsButton = new lime.GlossyButton("Place Buildings");
 	placeBuildingsButton.setPosition(450, 450).setSize(150,40).setFontSize(18).setColor('#00C');
     gameScene.listenOverOut(placeBuildingsButton, towerdef.hoverInHandler(placeBuildingsButton, 1.2), towerdef.hoverOutHandler(placeBuildingsButton, 1.0));
     
-    //consoleLayer.appendChild(playButton);
 	consoleLayer.appendChild(placeBuildingsButton);
     towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
     
-    /*
-    goog.events.listen(playButton, ['mousedown','touchstart'], function(e) {
-        gameLayer.removeChild(consoleLayer);
-        towerdef.playRound(gameScene, gameLayer);
-    });*/
-	
+    var instructions = new lime.Sprite().setSize(900,506).setFill("Instructions.png").setPosition(450,253).setAnchorPoint(0.5,0.5);
+    var instrToggleButton = new lime.GlossyButton("Continue").setPosition(550, 465).setSize(150,40).setFontSize(18).setColor('#C00');
+    var instrToggle_on = true;
+    
+    consoleLayer.appendChild(instructions);
+    consoleLayer.appendChild(instrToggleButton);
+    
+   goog.events.listen(instrToggleButton, ['mousedown','touchstart'], function(e) {
+		if(instrToggle_on) {
+			instrToggleButton.setText("Instructions").setPosition(100, 450);
+			consoleLayer.removeChild(instructions);
+			instrToggle_on = false;
+		}
+		else {
+			instrToggleButton.setText("Continue").setPosition(550, 465);
+			consoleLayer.removeChild(instrToggleButton);
+			consoleLayer.appendChild(instructions);	
+			consoleLayer.appendChild(instrToggleButton);
+			instrToggle_on = true;		
+		}
+		e.event.stopPropagation();
+    });
+    
 	goog.events.listen(placeBuildingsButton, ['mousedown','touchstart'], function(e) {
 		towerdef.placeBuildings(towerdef.lPlayer, gameScene, gameLayer, consoleLayer);
 		e.event.stopPropagation();
@@ -247,10 +259,36 @@ towerdef.placeBuildings = function (player, gameScene, gameLayer, consoleLayer) 
 	var gym = new lime.Sprite().setSize(96,80).setFill("gym.png").setPosition(50,250).setAnchorPoint(0.5,0.5);
 	var c = new lime.RoundedRect().setFill(255, 255, 255, 0.5).setPosition(550, 20).setSize(300, 400).setAnchorPoint(0,0);
 	var cl = new lime.Sprite().setPosition(700, 80).setSize(150, 35).setFill("buildings_header.png");
+	var gym_arrow = new lime.Sprite().setSize(90,150).setFill("arrow.png").setPosition(50,125).setAnchorPoint(0.5,0.5);
+	var b_arrow = new lime.Sprite().setSize(200, 75).setFill("barrow.png").setPosition(700, 465).setAnchorPoint(0.5,0.5);
+	var drag_here = new lime.Sprite().setSize(175, 50).setFill("dragbuildings.png").setPosition(200, 475).setAnchorPoint(0.5,0.5);
+	
+	var gym_arrow_anim = new lime.animation.ScaleTo(0.5);
+	gym_arrow.runAction(gym_arrow_anim, 0.5);
+	goog.events.listen(gym_arrow_anim, lime.animation.Event.STOP, function() {
+		gym_arrow.runAction(new lime.animation.ScaleTo(0.75), 0.5);
+	});
+	
+	var b_arrow_anim = new lime.animation.ScaleTo(0.5);
+	b_arrow.runAction(b_arrow_anim, 0.5);
+	goog.events.listen(b_arrow_anim, lime.animation.Event.STOP, function() {
+		b_arrow.runAction(new lime.animation.ScaleTo(0.75), 0.5);
+	});
+	
+	var drag_here_anim = new lime.animation.ScaleTo(0.5);
+	drag_here.runAction(drag_here_anim, 0.5);
+	goog.events.listen(drag_here_anim, lime.animation.Event.STOP, function() {
+		drag_here.runAction(new lime.animation.ScaleTo(0.75), 0.5);
+	});
+	
+	
+
 
 	bLayer.appendChild(background);
 	bLayer.appendChild(gym);
-	//bLayer.appendChild(doneButton);
+	bLayer.appendChild(gym_arrow);
+	bLayer.appendChild(b_arrow);
+	bLayer.appendChild(drag_here);
 	bLayer.appendChild(c);
 	bLayer.appendChild(cl);
 
