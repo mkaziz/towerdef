@@ -31,11 +31,12 @@ towerdef.stopShooting = function(player) {
 //This is it. The singularity. The point where AI becomes so realistic, you can't tell that it's not human.
 towerdef.opponentAI = function() {
 	var op = towerdef.rPlayer;
+    var pl = towerdef.lPlayer;
 	//Balanced strategy - tries to purchase the same amount of all pokemon, place buildings at bridges	
 	
     var bp = Math.random(); //buy building or pokemon?
     
-    if (bp <= 0.85) {
+    if ((bp <= 0.70 || op.buildings.length == 0 || op.buildings.length < pl.buildings.length - 2) && (op.buildings.length <= towerdef.buildingLimit)) {
         
         var r = Math.random(); //type of building?
         //choses a new pokemon with even probability
@@ -60,35 +61,36 @@ towerdef.opponentAI = function() {
         new_building.sprite.setPosition(X,Y);
     }
     
-    
-    if (bp > 0.5) {
-        var r = Math.random(); //type of pokemon?
+    for (i = 0; i < 2; i++) {
+        if ((bp > 0.4) || (op.pokemon.length + op.buildings.length <  pl.pokemon.length + op.buildings.length)) {
+            var r = Math.random(); //type of pokemon?
+            
+            //choses a new pokemon with even probability
+            if (r < 0.33) {
+                op.pokemon.push(new towerdef.pokemon(100,10,"fire",op,"charmander.png"));
+            }
+            else if (r >= 0.33 && r < 0.67){
+                op.pokemon.push(new towerdef.pokemon(100,10,"grass",op,"bulbasaur.png"));
+            }
+            else {
+                op.pokemon.push(new towerdef.pokemon(100,10,"water",op,"squirtle.png"));
+            }
         
-        //choses a new pokemon with even probability
-        if (r < 0.33) {
-            op.pokemon.push(new towerdef.pokemon(100,10,"fire",op,"charmander.png"));
         }
-        else if (r >= 0.33 && r < 0.67){
-            op.pokemon.push(new towerdef.pokemon(100,10,"grass",op,"bulbasaur.png"));
-        }
-        else {
-            op.pokemon.push(new towerdef.pokemon(100,10,"water",op,"squirtle.png"));
-        }
-    
     }
     
     for (i = 0; i < op.pokemon.length; i++) {
-        if (bp > 0.5) { 
+        
+        if (towerdef.lPlayer.pokemon.length > 6) {
+            if (bp > 0.5) { 
+            op.pokemon[i].level += 2;
+            }
+        } else if (bp > 0.5) { 
             op.pokemon[i].level += 1;
-        }    
+        }
     }
     
-    
-    
-    
-    //opponent pokemon
-    
-    
+
     //hack to make opponent pokemon the same size as yours
     for (i = 0; i<op.pokemon.length; i++){
         op.pokemon[i].sprite.runAction(new lime.animation.ScaleTo(1.5).setDuration(.05));

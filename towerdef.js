@@ -31,6 +31,7 @@ towerdef.soundtrack;
 //--------------------------------
 //GAME VARIABLES
 towerdef.pokemonLimit = 8; 		//max number of pokemon player can buy
+towerdef.buildingLimit = 6;
 
 towerdef.buildingCost = 50; 	//amt of coin to buy a building
 towerdef.pokemonCost = 20;		//amt of coin to buy a pokemon
@@ -123,6 +124,12 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
     this.levelUpCost = function () {
         return 2*(this.level) + 5;
     }
+    
+    this.levelUp = function () {
+        this.attack += 0
+        this.maxHealth += 3
+        this.level += 1;
+    }
 	
 	this.isFainted = function () {
 		if (this.health <= 0) {
@@ -163,7 +170,7 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
         if (this.sprite.parent_ != undefined) {
             this.sprite.parent_.removeChild(this.sprite);
         }
-        
+        //this.moving = false;
 		this.healthBackground = null;
 		this.healthLevel = null;
 		clearInterval(this.hintervalID);
