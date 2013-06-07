@@ -39,9 +39,9 @@ towerdef.levelUpCost = 5; 		//amt of coin to level up a pokemon;
 towerdef.levelUpMoney = 50; 	//amt of coin each player gets at the end of the level, in addition to money for any fainted pokemon
 towerdef.moneyFaintPokemon = 5; //amt of coin each player gets for an opponent's fainted pokemon
 
-towerdef.strongAttack = 25; 	//amt of damage a building does if it is a strength
+towerdef.strongAttack = 20; 	//amt of damage a building does if it is a strength
 towerdef.medAttack = 15;		//amt of damage a building does if it is a normal strength
-towerdef.weakAttack = 5;		//amt of damage a building does if it is a weakness
+towerdef.weakAttack = 10;		//amt of damage a building does if it is a weakness
 
 towerdef.towerRadius = 200;     //distance a pokemon must be under from a tower for it to attack
 towerdef.attackInterval = 500; 	//a building attacks after this many milliseconds 
@@ -135,15 +135,29 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 	this.displayHealth = function(healthLayer){
 		var pokemon = this;
 		var pos = this.sprite.getPosition();
-		this.healthBackground = new lime.RoundedRect().setSize(pokemon.maxHealth/2, 5).setRadius(2).setFill('#FFF').setPosition(pos.x - 25, pos.y - 20).setAnchorPoint(0,0);
-		this.healthLevel = new lime.RoundedRect().setSize(pokemon.health*(pokemon.maxHealth/200), 5).setRadius(2).setFill('#F00').setPosition(pos.x - 25, pos.y - 20).setAnchorPoint(0,0);
-		healthLayer.appendChild(this.healthBackground);
-		healthLayer.appendChild(this.healthLevel);
+        
+        if (this.healthBackground == null) {
+            this.healthBackground = new lime.RoundedRect().setSize(pokemon.maxHealth/2, 5).setRadius(2).setFill('#FFF').setPosition(pos.x - 25, pos.y - 20).setAnchorPoint(0,0);
+            healthLayer.appendChild(this.healthBackground);
+        }
+        else {
+            this.healthBackground.setPosition(pos.x - 25, pos.y - 20);
+        }
+        
+        if (this.healthLevel == null) {        
+            this.healthLevel = new lime.RoundedRect().setSize(pokemon.health*(pokemon.maxHealth/200), 5).setRadius(2).setFill('#F00').setPosition(pos.x - 25, pos.y - 20).setAnchorPoint(0,0);
+            healthLayer.appendChild(this.healthLevel);
+        }
+        else {
+            this.healthLevel.setPosition(pos.x - 25, pos.y - 20);
+        }
+		
 		
 		this.hintervalID = setInterval(function () { towerdef.pokemonHealthBar (pokemon, healthLayer);}, 50);
 	}
 	
 	this.stopUpdates = function() {
+
 		this.healthBackground = null;
 		this.healthLevel = null;
 		clearInterval(this.hintervalID);
