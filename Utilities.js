@@ -178,7 +178,7 @@ towerdef.shoot = function(pokemon, building, buildingsLayer) {
 		
 		//console.log("All pokemon done with level: " + towerdef.checkIfPokemonGone(towerdef.lPlayer, towerdef.rPlayer));
 
-		var bullet = new lime.Circle().setSize(5, 5).setFill(building.getColor()).setPosition(building.sprite.getPosition().x, building.sprite.getPosition().y);
+		var bullet = new lime.Circle().setSize(10, 10).setFill(building.getColor()).setPosition(building.sprite.getPosition().x, building.sprite.getPosition().y);
 		buildingsLayer.appendChild(bullet);
 		
 		//TODO: move to position where pokemon will be
@@ -195,9 +195,8 @@ towerdef.finishShoot = function (bullet, pokemon, buildingsLayer) {
 		pokemon.health -= towerdef.damageAmount(this.type, pokemon.type);
 	}
 	else {
-		pokemon.sprite.runAction(new lime.animation.FadeTo(0).setDuration(0));
 		if (pokemon.sprite.parent_ != undefined) {
-			pokemon.sprite.parent_.removeChild(pokemon);
+			pokemon.sprite.parent_.removeChild(pokemon.sprite);
 			
 		}
 	}
