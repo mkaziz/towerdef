@@ -119,6 +119,10 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
         this.health = this.maxHealth;
         this.collided = false;
     };
+    
+    this.levelUpCost = function () {
+        return 2*(this.level) + 5;
+    }
 	
 	this.isFainted = function () {
 		if (this.health <= 0) {

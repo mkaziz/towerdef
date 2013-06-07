@@ -109,17 +109,18 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
         else if (pokemon.type == "water")
             label.setText("Squirtle - lvl" + pokemon.level.toString());
             
-        var lvlUpButton = new lime.GlossyButton("Lvl up!");
+        var lvlUpButton = new lime.GlossyButton("Lvl up! $" + pokemon.levelUpCost());
         lvlUpButton.pokemon = pokemon;
-        lvlUpButton.setPosition(0, 22).setSize(30,15).setFontSize(7);
+        lvlUpButton.setPosition(0, 22).setSize(45,15).setFontSize(7);
         
         // lvl up
         goog.events.listen(lvlUpButton, ['mousedown','touchstart'], function(e) {
-            if (towerdef.lPlayer.money >= 5) {
+            cost = pokemon.levelUpCost();
+            if (towerdef.lPlayer.money >= cost) {
                 this.pokemon.attack += 2
                 this.pokemon.health += 2
                 this.pokemon.level += 1;
-                towerdef.lPlayer.money -= 5;
+                towerdef.lPlayer.money -= cost;
                 towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
             }
             else {
@@ -167,10 +168,10 @@ towerdef.console = function (gameScene, gameLayer) {
     consoleLayer.appendChild(buildingsLayer);
     
    	//coin cost labels
-   	var lvlUpCost = new lime.Label().setText("( Lvl up: " + towerdef.levelUpCost + " coins)").setPosition(30, 148).setFontSize(16).setAnchorPoint(0,0);
+   	//var lvlUpCost = new lime.Label().setText("( Lvl up: " + towerdef.levelUpCost + " coins)").setPosition(30, 148).setFontSize(16).setAnchorPoint(0,0);
     var buildingCost = new lime.Label().setText("(" + towerdef.buildingCost + " coins)").setPosition(770, 265).setFontSize(16);
     var pokemonCost = new lime.Label().setText("(" + towerdef.pokemonCost + " coins)").setPosition(330, 265).setFontSize(16);
-    consoleLayer.appendChild(lvlUpCost);
+    //consoleLayer.appendChild(lvlUpCost);
     consoleLayer.appendChild(buildingCost);
     consoleLayer.appendChild(pokemonCost);
 	
