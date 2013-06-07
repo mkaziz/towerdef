@@ -184,25 +184,27 @@ towerdef.console = function (gameScene, gameLayer) {
 		'water_building_large.png', "water_building.png", "water", "Water building", false);
 
 	//add a play button and place buildings button
-    var playButton = new lime.GlossyButton("Play Round");
+    /*var playButton = new lime.GlossyButton("Play Round");
     playButton.setPosition(450, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
-    gameScene.listenOverOut(playButton, towerdef.hoverInHandler(playButton, 1.2), towerdef.hoverOutHandler(playButton, 1.0));
+    gameScene.listenOverOut(playButton, towerdef.hoverInHandler(playButton, 1.2), towerdef.hoverOutHandler(playButton, 1.0));*/
 	
 	var placeBuildingsButton = new lime.GlossyButton("Place Buildings");
-	placeBuildingsButton.setPosition(700, 450).setSize(150,40).setFontSize(18).setColor('#00C');
+	placeBuildingsButton.setPosition(450, 450).setSize(150,40).setFontSize(18).setColor('#00C');
     gameScene.listenOverOut(placeBuildingsButton, towerdef.hoverInHandler(placeBuildingsButton, 1.2), towerdef.hoverOutHandler(placeBuildingsButton, 1.0));
     
-    consoleLayer.appendChild(playButton);
+    //consoleLayer.appendChild(playButton);
 	consoleLayer.appendChild(placeBuildingsButton);
     towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
     
+    /*
     goog.events.listen(playButton, ['mousedown','touchstart'], function(e) {
         gameLayer.removeChild(consoleLayer);
         towerdef.playRound(gameScene, gameLayer);
-    });
+    });*/
 	
 	goog.events.listen(placeBuildingsButton, ['mousedown','touchstart'], function(e) {
-		towerdef.placeBuildings(towerdef.lPlayer, gameScene, gameLayer);
+		towerdef.placeBuildings(towerdef.lPlayer, gameScene, gameLayer, consoleLayer);
+		e.event.stopPropagation();
     });
 
 }
@@ -232,7 +234,7 @@ towerdef.makeDraggable = function (item) {
 }
 
 //transition to place buildings screen
-towerdef.placeBuildings = function (player, gameScene, gameLayer) {
+towerdef.placeBuildings = function (player, gameScene, gameLayer, consoleLayer) {
 	// Building layers
 	var  placeBuildingsScene = new lime.Scene();
 	towerdef.director.pushScene(placeBuildingsScene);
@@ -241,14 +243,14 @@ towerdef.placeBuildings = function (player, gameScene, gameLayer) {
 	
 	//Add background, done Button, gym and buildings area
 	var background = new lime.Sprite().setSize(900,506).setFill("background.png").setPosition(0,0).setAnchorPoint(0,0);
-	var doneButton = new lime.GlossyButton("Done!").setPosition(700, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
+	//var doneButton = new lime.GlossyButton("Done!").setPosition(700, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
 	var gym = new lime.Sprite().setSize(96,80).setFill("gym.png").setPosition(50,250).setAnchorPoint(0.5,0.5);
 	var c = new lime.RoundedRect().setFill(255, 255, 255, 0.5).setPosition(550, 20).setSize(300, 400).setAnchorPoint(0,0);
 	var cl = new lime.Sprite().setPosition(700, 80).setSize(150, 35).setFill("buildings_header.png");
 
 	bLayer.appendChild(background);
 	bLayer.appendChild(gym);
-	bLayer.appendChild(doneButton);
+	//bLayer.appendChild(doneButton);
 	bLayer.appendChild(c);
 	bLayer.appendChild(cl);
 
@@ -262,13 +264,26 @@ towerdef.placeBuildings = function (player, gameScene, gameLayer) {
 		bLayer.appendChild(player.buildings[i].sprite.setPosition(initX, initY + i * interval));
 	}
 	
-	placeBuildingsScene.listenOverOut(doneButton, towerdef.hoverInHandler(doneButton, 1.2), towerdef.hoverOutHandler(doneButton, 1.0));
+//	placeBuildingsScene.listenOverOut(doneButton, towerdef.hoverInHandler(doneButton, 1.2), towerdef.hoverOutHandler(doneButton, 1.0));
 	
 	//listen for "done"
-	goog.events.listen(doneButton, ['mousedown','touchstart'], function(e) {
+	
+	var playButton = new lime.GlossyButton("Play Round");
+    playButton.setPosition(450, 450).setSize(100,40).setFontSize(18).setColor('#B0171F');
+    gameScene.listenOverOut(playButton, towerdef.hoverInHandler(playButton, 1.2), towerdef.hoverOutHandler(playButton, 1.0));
+    bLayer.appendChild(playButton);
+	
+	goog.events.listen(playButton, ['mousedown','touchstart'], function(e) {
+        gameLayer.removeChild(bLayer);
+        towerdef.director.popScene();
+        gameLayer.removeChild(consoleLayer);
+        towerdef.playRound(gameScene, gameLayer);
+        e.event.stopPropagation();
+    });
+	/*goog.events.listen(doneButton, ['mousedown','touchstart'], function(e) {
 		placeBuildingsScene.removeChild(bLayer);
 		towerdef.director.popScene();
 		e.event.stopPropagation();
-    });
+    });*/
 	
 }

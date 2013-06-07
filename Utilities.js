@@ -108,7 +108,7 @@ towerdef.checkGymCollision = function(gym, pokemon, player) {
 //get the amount of damage done to a gym by pokemon
 towerdef.getGymDamage = function(pokemon) {
 	// TODO: level up?
-	return 5;
+	return pokemon.level * 2;
 }
 
 towerdef.displayGymHealth = function(gameLayer) {

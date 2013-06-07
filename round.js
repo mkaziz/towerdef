@@ -2,7 +2,9 @@
 towerdef.addBuildingsToRound = function(roundLayer, player) {
 	for (i=0; i < player.buildings.length; i++) {
 		//if (player.buildings[i].sprite.getPosition().x < 500) {
+		
 		roundLayer.appendChild(player.buildings[i].sprite);
+		player.buildings[i].sprite.runAction(new lime.animation.ScaleTo(1.5).setDuration(0.5));
 		//}
 	}
 }
@@ -98,6 +100,7 @@ towerdef.opponentAI = function() {
 }
 
 towerdef.playRound = function (gameScene, gameLayer) {
+	console.log("playing round");
     
     var roundLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
     var starting = new lime.Sprite().setSize(540,160).setFill("starting.png").setPosition(450,150).setAnchorPoint(0.5,0.5).setScale(1.5,1.5);
@@ -136,8 +139,8 @@ towerdef.playRound = function (gameScene, gameLayer) {
             towerdef.rPlayer.stopUpdates();
             lime.scheduleManager.callAfter(function (dt) {
                 gameLayer.removeChild(roundLayer);
-                towerdef.lPlayer.money += 20;
-                towerdef.rPlayer.money += 20;
+                towerdef.lPlayer.money += towerdef.levelUpMoney;
+                towerdef.rPlayer.money += towerdef.levelUpMoney;
                 towerdef.console(gameScene, gameLayer);
             }, gameScene, 2000);
             lime.scheduleManager.unschedule(handleConsoleSwitch, gameScene);
