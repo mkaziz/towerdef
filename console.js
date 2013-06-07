@@ -123,7 +123,7 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
             cost = pokemon.levelUpCost();
             console.log("Player has " + towerdef.lPlayer.money + " coins, and level up costs "+ cost);
             if (towerdef.lPlayer.money >= cost) {
-                pokemon.levelUp();
+                this.pokemon.levelUp();
                 towerdef.lPlayer.money -= cost;
                 towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
             }

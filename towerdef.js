@@ -25,7 +25,7 @@ towerdef.lPlayer = null;
 towerdef.rPlayer = null;
 towerdef.roundRunTime = 5000; //milliseconds
 towerdef.director = null;
-towerdef.music = false;
+towerdef.music = true;
 towerdef.soundtrack;
 
 //--------------------------------
@@ -178,6 +178,7 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
         //this.moving = false;
 		this.healthBackground = null;
 		this.healthLevel = null;
+        
 		clearInterval(this.hintervalID);
 	}
 	
