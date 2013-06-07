@@ -36,7 +36,7 @@ towerdef.opponentAI = function() {
 	
     var bp = Math.random(); //buy building or pokemon?
     
-    if ((bp <= 0.70 || op.buildings.length == 0) && (op.buildings.length <= towerdef.buildingLimit)) {
+    if ((bp <= 0.70 || op.buildings.length == 0 || op.buildings.length < pl.buildings.length - 2) && (op.buildings.length <= towerdef.buildingLimit)) {
         
         var r = Math.random(); //type of building?
         //choses a new pokemon with even probability
@@ -62,7 +62,7 @@ towerdef.opponentAI = function() {
     }
     
     for (i = 0; i < 2; i++) {
-        if (bp > 0.4) {
+        if ((bp > 0.4) || (op.pokemon.length + op.buildings.length <  pl.pokemon.length + op.buildings.length)) {
             var r = Math.random(); //type of pokemon?
             
             //choses a new pokemon with even probability
