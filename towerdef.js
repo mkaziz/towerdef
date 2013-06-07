@@ -64,10 +64,8 @@ towerdef.player = function(gym, opponent) {
 	
 	this.buildingAttack = function (buildingsLayer) {
 		for (i = 0; i< this.buildings.length; i++) {
-			for (j = 0; j < this.opponent.pokemon.length; j++) {
-				//console.log ("Building " + i, ", " + this.buildings[i].name + " is shooting " + this.opponent.pokemon[j].type + ", pokemon " + j);
-				this.buildings[i].attack(this.opponent.pokemon[j], buildingsLayer);
-			}
+			
+            this.buildings[i].attack(buildingsLayer);
 		}
 	}
 	
@@ -241,12 +239,12 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 	this.attacking = false;
 	
     this.getBestTarget = function () {
-        var opponentPokemon = this.opponent.pokemon;
+        var opponentPokemon = this.player.opponent.pokemon;
         var chosenPokemon = null;
         var chosenPokemonDist = towerdef.towerRadius;
         for (i = 0; i < opponentPokemon.length; i++) {
             if (this.isInRange(opponentPokemon[i])) {
-                var dist = towerdef.distance(pokemon.sprite, this.sprite);
+                var dist = towerdef.distance(opponentPokemon[i].sprite, this.sprite);
                 if (dist < chosenPokemonDist) {
                     chosenPokemonDist = dist;
                     chosenPokemon = opponentPokemon[i];
@@ -275,10 +273,14 @@ towerdef.building = function (name, health, attack, type, player, sprite_name)  
 	
 	this.attackIntervalID;
 	
-	this.attack = function(pokemon, buildingsLayer) {
+	this.attack = function(buildingsLayer) {
 		var building = this;
 		if (this.attackIntervalID == undefined){
-			this.attackIntervalID = setInterval(function () {towerdef.checkAttack(pokemon, building, buildingsLayer);}, this.attack_interval);
+			this.attackIntervalID = setInterval(function () {
+                pokemon = building.getBestTarget();
+                if (pokemon !== null)
+                    towerdef.checkAttack(pokemon, building, buildingsLayer);
+                }, this.attack_interval);
 		}
 	}
 	
@@ -355,6 +357,7 @@ towerdef.gameScene = function () {
 	towerdef.rPlayer = new towerdef.player(rGym, towerdef.lPlayer);
     towerdef.lPlayer = new towerdef.player(lGym, towerdef.rPlayer);
 	towerdef.rPlayer.opponent = towerdef.lPlayer; //doesn't seem to want to add this when rPlayer is created and lPlayer is still null.
+    towerdef.lPlayer.opponent = towerdef.rPlayer
    
     towerdef.console(gameScene, gameLayer);
 
