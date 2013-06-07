@@ -170,7 +170,7 @@ towerdef.console = function (gameScene, gameLayer) {
    	var lvlUpCost = new lime.Label().setText("( Lvl up: " + towerdef.levelUpCost + " coins)").setPosition(30, 148).setFontSize(16).setAnchorPoint(0,0);
     var buildingCost = new lime.Label().setText("(" + towerdef.buildingCost + " coins)").setPosition(770, 265).setFontSize(16);
     var pokemonCost = new lime.Label().setText("(" + towerdef.pokemonCost + " coins)").setPosition(330, 265).setFontSize(16);
-     consoleLayer.appendChild(lvlUpCost);
+    consoleLayer.appendChild(lvlUpCost);
     consoleLayer.appendChild(buildingCost);
     consoleLayer.appendChild(pokemonCost);
 	
@@ -198,36 +198,30 @@ towerdef.console = function (gameScene, gameLayer) {
 	consoleLayer.appendChild(placeBuildingsButton);
     towerdef.updateConsole(gameScene, pokemonLayer, moneyLayer, buildingsLayer);
     
+    var instructionsButton = new lime.GlossyButton("Instructions").setSize(150,40).setFontSize(18).setColor('#C00').setPosition(100, 450);
+    gameScene.listenOverOut(instructionsButton, towerdef.hoverInHandler(instructionsButton, 1.2), towerdef.hoverOutHandler(instructionsButton, 1.0));
     
-    var instructions = new lime.Sprite().setSize(900,506).setFill("Instructions.png").setPosition(450,253).setAnchorPoint(0.5,0.5);
-    var instrToggleButton = new lime.GlossyButton("Continue").setSize(150,40).setFontSize(18).setColor('#C00');
-    var instrToggle_on = true;
+    consoleLayer.appendChild(instructionsButton);
     
-    if(towerdef.firstRound) {
-    	consoleLayer.appendChild(instructions);
-    	instrToggleButton.setPosition(550, 465);
-    	towerdef.firstRound = false;
-    }
-    else {
-    	instrToggleButton.setPosition(100, 450);
-    }
-    consoleLayer.appendChild(instrToggleButton);
-    
-   goog.events.listen(instrToggleButton, ['mousedown','touchstart'], function(e) {
-		if(instrToggle_on) {
-			instrToggleButton.setText("Instructions").setPosition(100, 450);
-			consoleLayer.removeChild(instructions);
-			instrToggle_on = false;
-		}
-		else {
-			instrToggleButton.setText("Continue").setPosition(550, 465);
-			consoleLayer.removeChild(instrToggleButton);
-			consoleLayer.appendChild(instructions);	
-			consoleLayer.appendChild(instrToggleButton);
-			instrToggle_on = true;		
-		}
-		e.event.stopPropagation();
+   goog.events.listen(instructionsButton, ['mousedown','touchstart'], function(e) {
+        consoleLayer.appendChild(instructions);	
+        e.event.stopPropagation();
     });
+
+    var instructions = new lime.Sprite().setSize(900,506).setFill("Instructions.png").setPosition(450,253).setAnchorPoint(0.5,0.5);
+    var instructionsContinueButton = new lime.GlossyButton("Continue").setSize(150,40).setFontSize(18).setColor('#C00').setPosition(0, 210);
+    gameScene.listenOverOut(instructionsContinueButton, towerdef.hoverInHandler(instructionsContinueButton, 1.2), towerdef.hoverOutHandler(instructionsContinueButton, 1.0));
+    
+    instructions.appendChild(instructionsContinueButton);
+    goog.events.listen(instructionsContinueButton, ['mousedown','touchstart'], function(e) {
+        consoleLayer.removeChild(instructions);
+        e.event.stopPropagation();
+    });
+    
+    if (towerdef.firstRound) {
+        consoleLayer.appendChild(instructions);
+        towerdef.firstRound = false;
+    }
     
 	goog.events.listen(placeBuildingsButton, ['mousedown','touchstart'], function(e) {
 		towerdef.placeBuildings(towerdef.lPlayer, gameScene, gameLayer, consoleLayer);
