@@ -121,6 +121,7 @@ towerdef.updateConsole = function (gameScene, pokemonLayer, moneyLayer, building
         // lvl up
         goog.events.listen(lvlUpButton, ['mousedown','touchstart'], function(e) {
             cost = pokemon.levelUpCost();
+            console.log("Player has " + towerdef.lPlayer.money + " coins, and level up costs "+ cost);
             if (towerdef.lPlayer.money >= cost) {
                 pokemon.levelUp();
                 towerdef.lPlayer.money -= cost;
@@ -154,6 +155,8 @@ towerdef.firstRound = true;
 
 //configure the console
 towerdef.console = function (gameScene, gameLayer) {
+	towerdef.inConsole = true;
+	
     //background and layer setup
     var consoleLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
     gameLayer.appendChild(consoleLayer);
@@ -234,6 +237,8 @@ towerdef.console = function (gameScene, gameLayer) {
 
 }
 
+towerdef.inConsole = true;
+
 //------------------------------------------------------------
 //PLACE BUILDINGS
 //make the buildings draggable
@@ -245,6 +250,7 @@ towerdef.makeDraggable = function (item) {
     
 	//make the building draggable
 		goog.events.listen(itemSprite, 'mousedown', function(e){
+			if (towerdef.inConsole) {
 			var drag = e.startDrag(false);
 			e.event.stopPropagation(); 
 			itemSprite.appendChild(radius);
@@ -264,7 +270,7 @@ towerdef.makeDraggable = function (item) {
 					itemSprite.runAction(new lime.animation.MoveTo(150, myY).setDuration(0.5));
 				}
 			});
-	
+			}
 		});
 }
 

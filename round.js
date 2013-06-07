@@ -36,7 +36,7 @@ towerdef.opponentAI = function() {
 	
     var bp = Math.random(); //buy building or pokemon?
     
-    if ((bp <= 0.70 || op.buildings.length == 0 || op.buildings.length < pl.buildings.length - 2) && (op.buildings.length <= towerdef.buildingLimit)) {
+    if ((bp <= 0.30*towerdef.opponentDifficulty || op.buildings.length == 0 || op.buildings.length < pl.buildings.length - 2) && (op.buildings.length <= towerdef.buildingLimit)) {
         
         var r = Math.random(); //type of building?
         //choses a new pokemon with even probability
@@ -62,7 +62,7 @@ towerdef.opponentAI = function() {
     }
     
     for (i = 0; i < 2; i++) {
-        if ((bp > 0.4) || (op.pokemon.length + op.buildings.length <  pl.pokemon.length + op.buildings.length)) {
+        if ((bp < 0.4*towerdef.opponentDifficulty) || (op.pokemon.length + op.buildings.length <  pl.pokemon.length + op.buildings.length)) {
             var r = Math.random(); //type of pokemon?
             
             //choses a new pokemon with even probability
@@ -99,6 +99,7 @@ towerdef.opponentAI = function() {
 }
 
 towerdef.playRound = function (gameScene, gameLayer) {
+	towerdef.inConsole = false;
 
     var roundLayer = new lime.Layer().setPosition(0,0).setRenderer(lime.Renderer.CANVAS).setAnchorPoint(0,0);
     var starting = new lime.Sprite().setSize(540,160).setFill("starting.png").setPosition(450,150).setAnchorPoint(0.5,0.5).setScale(1.5,1.5);
@@ -112,7 +113,6 @@ towerdef.playRound = function (gameScene, gameLayer) {
             ).setDuration(1));
     
 	towerdef.opponentAI();
-	//towerdef.rPlayer.pokemon.push(new towerdef.pokemon(100,10,"fire",towerdef.rPlayer,"charmander.png"));
 	
 	towerdef.addBuildingsToRound(gameLayer, towerdef.lPlayer);
 	towerdef.addBuildingsToRound(gameLayer, towerdef.rPlayer);

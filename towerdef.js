@@ -34,11 +34,13 @@ towerdef.pokemonLimit = 8; 		//max number of pokemon player can buy
 towerdef.buildingLimit = 6;
 
 towerdef.buildingCost = 50; 	//amt of coin to buy a building
-towerdef.pokemonCost = 20;		//amt of coin to buy a pokemon
-towerdef.levelUpCost = 5; 		//amt of coin to level up a pokemon;
+towerdef.pokemonCost = 15;		//amt of coin to buy a pokemon
+//towerdef.levelUpCost = 5; 	//amt of coin to level up a pokemon - see function
 
-towerdef.levelUpMoney = 20; 	//amt of coin each player gets at the end of the level, in addition to money for any fainted pokemon
+towerdef.levelUpMoney = 30; 	//amt of coin each player gets at the end of the level, in addition to money for any fainted pokemon
 towerdef.moneyFaintPokemon = 5; //amt of coin each player gets for an opponent's fainted pokemon
+
+towerdef.opponentDifficulty = 1; //increase in probability that they will be able to fund new units
 
 towerdef.strongAttack = 20; 	//amt of damage a building does if it is a strength
 towerdef.medAttack = 15;		//amt of damage a building does if it is a normal strength
@@ -76,8 +78,11 @@ towerdef.player = function(gym, opponent) {
 		var player = this;
 		this.pintervalID = setInterval(function () {
             for (i = 0; i<player.opponent.pokemon.length; i++) {
+            	//if (player.health > 0) {
                 var myPokemon = player.opponent.pokemon[i];
                 towerdef.checkGymCollision(myGym, myPokemon, player); 
+               //}
+
             }
         }, 250);
 	}
@@ -181,42 +186,44 @@ towerdef.pokemon = function(health,attack,type,player,spriteUrl) {
 		var movement = null;
 		var entity = this;
 		var moving = true;
+		
+		var rand = (Math.random() + 0.5);
 		// pokemon movng towards opposite gym action
 		if(owner==towerdef.lPlayer){
 			if(this.sprite.position_.x<owner.gym.position_.x+135){
-				movement = new lime.animation.MoveTo(owner.gym.position_.x+135,owner.gym.position_.y).setDuration((owner.gym.position_.x+135-this.sprite.position_.x)/towerdef.speed);
+				movement = new lime.animation.MoveTo(owner.gym.position_.x+135,owner.gym.position_.y).setDuration((owner.gym.position_.x+135-this.sprite.position_.x)/(towerdef.speed * rand));
 			}else if(this.sprite.position_.x==owner.gym.position_.x+135 && this.sprite.position_.y==owner.gym.position_.y){
 				if(direction == 0) 
-					movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x-115,owner.gym.position_.y).setDuration((owner.opponent.gym.position_.x-115-this.sprite.position_.x)/towerdef.speed);
+					movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x-115,owner.gym.position_.y).setDuration((owner.opponent.gym.position_.x-115-this.sprite.position_.x)/(towerdef.speed * rand));
 				else if(direction == 1)
-					movement = new lime.animation.MoveTo(owner.gym.position_.x+135,owner.gym.position_.y-190).setDuration(190/towerdef.speed);
+					movement = new lime.animation.MoveTo(owner.gym.position_.x+135,owner.gym.position_.y-190).setDuration(190/(towerdef.speed * rand));
 				else if(direction == 2)
-					movement = new lime.animation.MoveTo(owner.gym.position_.x+135,owner.gym.position_.y+190).setDuration(190/towerdef.speed);
+					movement = new lime.animation.MoveTo(owner.gym.position_.x+135,owner.gym.position_.y+190).setDuration(190/(towerdef.speed * rand));
 			}else if(this.sprite.position_.x==owner.gym.position_.x+135){
-				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x-115,this.sprite.position_.y).setDuration((owner.opponent.gym.position_.x-115-this.sprite.position_.x)/towerdef.speed);
+				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x-115,this.sprite.position_.y).setDuration((owner.opponent.gym.position_.x-115-this.sprite.position_.x)/(towerdef.speed * rand));
 			}else if(this.sprite.position_.y != owner.gym.position_.y){
-				movement = new lime.animation.MoveTo(this.sprite.position_.x,owner.gym.position_.y).setDuration(190/towerdef.speed);
+				movement = new lime.animation.MoveTo(this.sprite.position_.x,owner.gym.position_.y).setDuration(190/(towerdef.speed * rand));
 			}else{
 				moving = false;
-				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x,this.sprite.position_.y).setDuration((owner.opponent.gym.position_.x-this.sprite.position_.x)/towerdef.speed);
+				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x,this.sprite.position_.y).setDuration((owner.opponent.gym.position_.x-this.sprite.position_.x)/(towerdef.speed * rand));
 			}
 		}else{
 			if(this.sprite.position_.x>owner.gym.position_.x-115){
-				movement = new lime.animation.MoveTo(owner.gym.position_.x-115,owner.gym.position_.y).setDuration((this.sprite.position_.x-owner.gym.position_.x+115)/towerdef.speed);
+				movement = new lime.animation.MoveTo(owner.gym.position_.x-115,owner.gym.position_.y).setDuration((this.sprite.position_.x-owner.gym.position_.x+115)/(towerdef.speed * rand));
 			}else if(this.sprite.position_.x==owner.gym.position_.x-115 && this.sprite.position_.y==owner.gym.position_.y){
 				if(direction == 0) 
-					movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x+135,owner.gym.position_.y).setDuration((this.sprite.position_.x-owner.opponent.gym.position_.x-135)/towerdef.speed);
+					movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x+135,owner.gym.position_.y).setDuration((this.sprite.position_.x-owner.opponent.gym.position_.x-135)/(towerdef.speed * rand));
 				else if(direction == 1)
-					movement = new lime.animation.MoveTo(owner.gym.position_.x-115,owner.gym.position_.y-190).setDuration(190/towerdef.speed);
+					movement = new lime.animation.MoveTo(owner.gym.position_.x-115,owner.gym.position_.y-190).setDuration(190/(towerdef.speed * rand));
 				else if(direction == 2)
-					movement = new lime.animation.MoveTo(owner.gym.position_.x-115,owner.gym.position_.y+190).setDuration(190/towerdef.speed);
+					movement = new lime.animation.MoveTo(owner.gym.position_.x-115,owner.gym.position_.y+190).setDuration(190/(towerdef.speed * rand));
 			}else if(this.sprite.position_.x==owner.gym.position_.x-115){
-				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x+135,this.sprite.position_.y).setDuration((this.sprite.position_.x-owner.opponent.gym.position_.x-135)/towerdef.speed);
+				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x+135,this.sprite.position_.y).setDuration((this.sprite.position_.x-owner.opponent.gym.position_.x-135)/(towerdef.speed * rand));
 			}else if(this.sprite.position_.y != owner.gym.position_.y){
-				movement = new lime.animation.MoveTo(this.sprite.position_.x,owner.gym.position_.y).setDuration(190/towerdef.speed);
+				movement = new lime.animation.MoveTo(this.sprite.position_.x,owner.gym.position_.y).setDuration(190/(towerdef.speed * rand));
 			}else{
 				moving = false;
-				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x,this.sprite.position_.y).setDuration((this.sprite.position_.x-owner.opponent.gym.position_.x)/towerdef.speed);
+				movement = new lime.animation.MoveTo(owner.opponent.gym.position_.x,this.sprite.position_.y).setDuration((this.sprite.position_.x-owner.opponent.gym.position_.x)/(towerdef.speed * rand));
 			}
         }this.sprite.runAction(movement.setEasing(lime.animation.Easing.LINEAR));
 

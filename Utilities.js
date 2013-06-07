@@ -115,24 +115,37 @@ towerdef.numberOpponentFaintedPokemon = function(opponent) {
 towerdef.checkGymCollision = function(gym, pokemon, player) {
 	if(goog.math.Box.intersects(gym.getBoundingBox(), pokemon.sprite.getBoundingBox()) && !pokemon.collided){
 		//colliding with Gym
+		
+		
+		
 		if (player.health > 0) {
 			player.health -= towerdef.getGymDamage(pokemon);
 			pokemon.collided = true;
 			pokemon.sprite.runAction(new lime.animation.FadeTo(0.1).setDuration(0.5));
-			//console.log(player.gym.location + " gym health: " + player.health);
+			console.log(player.gym.location + " gym health: " + player.health);
 		}
-		else 
+	 	else {
+               	if (gym.location == "right"){
+               		alert ("Congratulations! You are victorious!");
+               	}
+               	else{
+               		alert("You lose. Game Over.");
+               	}
+
+               }
+		/*else 
 		{
+			//game over
+			
 			//TODO: lose screen
 			if (gym.location = "left"){
 				alert("Game over! You lose!");
 			}
-			else 
-			{
-				alert("Game over! You win!");
-			}
             towerdef.menuScene();
 		}
+		if (player.opponent.health  <= 0) {
+			alert("Game over! You win!");
+		}*/
    	}
 }
 
